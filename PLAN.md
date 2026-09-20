@@ -68,7 +68,33 @@ Not glamorous, matters most.
 
 ---
 
-## Phase 3 — Flutter app, offline core
+## Phase 3 — web app (PWA) ✅ built
+
+**Replaced the Flutter plan.** A PWA installs to the home screen on both
+phones, works offline, costs nothing, needs no app store, and skips the
+$99/yr Apple developer fee. It gives up exactly one thing: locally scheduled
+notifications. See `docs/deploy.md` for what to do about that.
+
+```
+web/
+├── index.html            shell
+├── styles.css            System AI broadcast styling
+├── picker.js             pure daily-pick logic (tested)
+├── app.js                rendering + settings
+├── sw.js                 offline cache
+├── manifest.webmanifest  home-screen install
+└── entries-fallback.js   placeholder data, original text
+```
+
+Deploy with `.github/workflows/pages.yml`, or per `docs/deploy.md`.
+
+**Still to do:** generate `icon-192.png`, `icon-512.png`, `icon-180.png` from
+`icon.svg`. Verify the layout in a real browser. Confirm offline works after
+a hard reload with the network off.
+
+---
+
+## Phase 3b — Flutter app (only if you want real notifications)
 
 ```
 app/lib/

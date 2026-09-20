@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DCC Daily</title>
+<meta name="description" content="One Dungeon Crawler Carl achievement a day, filtered to the books you've finished.">
+<meta name="theme-color" content="#1E1320">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DCC Daily">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="wrap">
+  <div class="bar">
+    <p class="logo">DCC Daily</p>
+    <p class="date" id="date"></p>
+  </div>
+
+  <article class="card" id="card" aria-live="polite"></article>
+
+  <details class="panel">
+    <summary>Settings</summary>
+    <div class="panel-inner">
+      <label for="book">How far have you read? Nothing past this point will show.</label>
+      <select id="book"></select>
+      <p class="count" id="count"></p>
+      <p style="margin-top:1rem">
+        <button id="reseed" type="button">Shuffle my order</button>
+      </p>
+      <p class="count">
+        Your order is drawn from a random number stored only on this device.
+        Shuffling gives you a different sequence from here on.
+      </p>
+    </div>
+  </details>
+</main>
+
+<footer>
+  <p>
+    Entry text comes from the
+    <a href="https://dungeon-crawler-carl.fandom.com/" rel="noopener" target="_blank">Dungeon Crawler Carl Wiki</a>,
+    licensed CC BY-SA 3.0. Much of it quotes Matt Dinniman's novels and remains his copyright.
+    This is a personal, non-commercial fan project, not affiliated with or endorsed by the author or publishers.
+  </p>
+  <p>Works offline once loaded. Nothing you do here leaves your device.</p>
+</footer>
+
+<script src="picker.js"></script>
+<script src="entries-fallback.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

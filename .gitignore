@@ -12,3 +12,4 @@ app/ios/Pods/
 app/android/local.properties
 *.jks
 *.keystore
+web/entries.json

@@ -1,0 +1,189 @@
+/* DCC Daily - System AI broadcast overlay.
+   Deliberately dark-only: the subject is an underground game show. */
+
+:root {
+  --base:    #1E1320;   /* deep aubergine - the dungeon */
+  --raised:  #2B1A2E;   /* card ground */
+  --edge:    #46294A;   /* hairline */
+  --ink:     #F4EADF;   /* bone */
+  --dim:     #A594AB;   /* muted lilac */
+  --hot:     #FF2E88;   /* broadcast magenta */
+  --gold:    #F5B32E;   /* loot */
+
+  --display: Anton, "Arial Narrow", sans-serif;
+  --body: Spectral, Georgia, "Times New Roman", serif;
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: inherit; }
+
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+
+body {
+  margin: 0;
+  background: var(--base);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* Production lighting from above - the show is being filmed. */
+  background-image: radial-gradient(120% 70% at 50% -10%, #3A2140 0%, #1E1320 60%);
+  background-attachment: fixed;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+  flex: 1;
+}
+
+/* ---- the card: the hero ---- */
+
+.card {
+  background: var(--raised);
+  border: 1px solid var(--edge);
+  border-top: 4px solid var(--hot);
+  box-shadow: 0 0 0 1px #00000055, 0 1.5rem 3rem -1rem #00000088;
+  padding: 0;
+  overflow: hidden;
+}
+
+.banner {
+  font-family: var(--display);
+  font-size: clamp(1.4rem, 7vw, 2rem);
+  letter-spacing: 0.02em;
+  color: var(--hot);
+  background: #00000033;
+  margin: 0;
+  padding: 0.7rem 1.1rem 0.5rem;
+  border-bottom: 1px solid var(--edge);
+  line-height: 1.1;
+}
+
+.name {
+  font-family: var(--display);
+  font-size: clamp(1.9rem, 9.5vw, 3.1rem);
+  line-height: 1.02;
+  margin: 1.1rem 1.1rem 0.9rem;
+  color: var(--ink);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.body-text {
+  margin: 0 1.1rem 1.2rem;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.reward {
+  margin: 0;
+  padding: 0.9rem 1.1rem;
+  border-top: 1px dashed var(--edge);
+  background: #00000029;
+  color: var(--gold);
+}
+.reward b { font-family: var(--display); font-weight: 400; letter-spacing: .02em; }
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  padding: 0.7rem 1.1rem;
+  border-top: 1px solid var(--edge);
+  font-size: 0.82rem;
+  color: var(--dim);
+  font-family: var(--display);
+  letter-spacing: 0.03em;
+}
+.meta a { color: var(--dim); }
+
+/* ---- controls ---- */
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.logo {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  margin: 0;
+  color: var(--dim);
+}
+.date { font-size: 0.85rem; color: var(--dim); margin: 0; }
+
+.panel {
+  margin-top: 1.5rem;
+  border: 1px solid var(--edge);
+  background: #00000024;
+}
+.panel > summary {
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  font-family: var(--display);
+  letter-spacing: 0.03em;
+  color: var(--ink);
+}
+.panel > summary::marker { color: var(--hot); }
+.panel-inner { padding: 0 1rem 1rem; }
+
+label { display: block; margin: 0.9rem 0 0.35rem; font-size: 0.92rem; color: var(--dim); }
+
+select, button, input[type="range"] { font: inherit; }
+
+select {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  background: var(--base);
+  color: var(--ink);
+  border: 1px solid var(--edge);
+}
+
+button {
+  padding: 0.6rem 1rem;
+  background: transparent;
+  color: var(--hot);
+  border: 1px solid var(--hot);
+  cursor: pointer;
+  font-family: var(--display);
+  letter-spacing: 0.04em;
+}
+button:hover, button:focus-visible { background: var(--hot); color: #1E1320; }
+
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.count { font-size: 0.85rem; color: var(--dim); margin: 0.6rem 0 0; }
+
+footer {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 2rem;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--dim);
+}
+footer a { color: var(--dim); }
+
+.empty { padding: 2rem 1.1rem; color: var(--dim); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .card { animation: drop 260ms cubic-bezier(.2,.7,.3,1) both; }
+  @keyframes drop {
+    from { opacity: 0; transform: translateY(-0.6rem); }
+    to   { opacity: 1; transform: none; }
+  }
+}

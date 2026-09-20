@@ -279,7 +279,13 @@ def main() -> int:
         by_tier[entry["spoilerTier"]] = by_tier.get(entry["spoilerTier"], 0) + 1
     spread = ", ".join(f"B{t}:{n}" for t, n in sorted(by_tier.items()))
 
+    # Mirror into web/ so `python3 -m http.server` in that folder just works.
+    web_copy = REPO_ROOT / "web" / "entries.json"
+    if web_copy.parent.exists():
+        web_copy.write_text(out.read_text(encoding="utf-8"), encoding="utf-8")
+
     print(f"\nwrote {out} - {len(kept)} entries ({spread})")
+    print(f"mirrored -> {web_copy}")
     if len(kept) < 60:
         print("WARNING: thin dataset. A daily app wants 150+ or it repeats fast.")
     return 0

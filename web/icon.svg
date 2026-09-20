@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="DCC Daily">
+  <rect width="512" height="512" fill="#1E1320"/>
+  <rect x="48" y="96" width="416" height="320" fill="#2B1A2E" stroke="#46294A" stroke-width="8"/>
+  <rect x="48" y="96" width="416" height="34" fill="#FF2E88"/>
+  <g fill="#F4EADF">
+    <rect x="88" y="182" width="264" height="26"/>
+    <rect x="88" y="232" width="336" height="26"/>
+    <rect x="88" y="282" width="208" height="26"/>
+  </g>
+  <rect x="88" y="340" width="176" height="26" fill="#F5B32E"/>
+</svg>
