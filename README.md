@@ -96,8 +96,3 @@ The `--report` flag on `build_dataset.py` exists for exactly this reason.
     web/                 the PWA - open web/index.html, or see docs/deploy.md
     docs/deploy.md       hosting options, install steps, notification reality
     NOTICE.md            attribution and the copyright constraint
-
-## Read this before publishing anywhere
-
-Achievement text is largely Matt Dinniman's prose quoted on the wiki. Fine on
-your own phone, not fine on an app store. See [`NOTICE.md`](NOTICE.md).
