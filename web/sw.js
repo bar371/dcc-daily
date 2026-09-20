@@ -1,6 +1,6 @@
 /* Cache-first for the shell, network-first for the dataset.
    Bump CACHE when you change any shell file, or clients keep the old one. */
-const CACHE = "dcc-daily-v1";
+const CACHE = "dcc-daily-v2";
 const SHELL = [
   ".", "index.html", "styles.css", "picker.js", "app.js",
   "entries-fallback.js", "manifest.webmanifest", "icon.svg",
