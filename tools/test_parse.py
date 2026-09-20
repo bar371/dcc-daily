@@ -65,7 +65,26 @@ def run():
         fails.append(f"Menagerie reward leaked infobox syntax: {mg['reward']!r}")
     check("Menagerie reward", mg["reward"], "You have a key. It opens only one cage.")
 
-    check("stats total", stats["total"], 6)
+    # A bare infobox placeholder ("None", "Nothing", ...) isn't a real reward
+    # - fall through to the AI-voice prose, which has the actual joke text.
+    pr = by_title["Placeholder Reward"]
+    check("Placeholder Reward reward", pr["reward"], "Well, if there's a heaven, maybe they'll let you in. Because you about to meet your maker.")
+
+    # Book 1's alias ("Dungeon Crawler Carl") is a literal substring of every
+    # other book's full bibliographic subtitle ("...: Dungeon Crawler Carl
+    # Book 6"). Regression test: citing Book 6 that way must not also tag
+    # this Book 1 - no SpoilH here, so a false positive would leak straight
+    # through as the final tier.
+    cs = by_title["Citation Subtitle"]
+    check("Citation Subtitle tier", cs["spoilerTier"], 6)
+    check("Citation Subtitle signal", cs["tierSignal"], "citation")
+
+    # Same collision, but via a fan-art filename inside a <gallery> block
+    # rather than a citation footnote.
+    gf = by_title["Gallery Filename"]
+    check("Gallery Filename tier", gf["spoilerTier"], 6)
+
+    check("stats total", stats["total"], 9)
 
     for e in entries:
         if not e["sourceUrl"].startswith("https://"):

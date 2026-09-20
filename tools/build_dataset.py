@@ -39,6 +39,11 @@ RE_REF = re.compile(r"<ref[^>]*>.*?</ref>", re.DOTALL | re.IGNORECASE)
 RE_SELFCLOSING_REF = re.compile(r"<ref[^>]*/>", re.IGNORECASE)
 RE_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
 RE_FILE = re.compile(r"\[\[(?:File|Image):[^\]]*\]\]", re.IGNORECASE)
+# A <gallery> block's lines are bare "File:Name.png|caption", not [[File:..]]
+# links, so RE_FILE above doesn't catch them. Fan-art filenames routinely
+# include the series name ("Heather - Dungeon Crawler Carl.png"), which would
+# otherwise be misread as a citation to book 1 - see resolve_tier.
+RE_GALLERY = re.compile(r"<gallery\b.*?</gallery>", re.DOTALL | re.IGNORECASE)
 RE_CATEGORY = re.compile(r"\[\[Category:([^\]|]+)(?:\|[^\]]*)?\]\]", re.IGNORECASE)
 RE_LINK = re.compile(r"\[\[(?:[^\]|]*\|)?([^\]|]+)\]\]")
 RE_BOLD_ITALIC = re.compile(r"'{2,}")
@@ -212,7 +217,16 @@ def _extract_achievement_box(wikitext: str) -> str | None:
 
 def extract_infobox_reward(wikitext: str) -> str | None:
     """The {{Achievement|...|reward=...}} infobox field - cleaner and more
-    reliable than scraping a "Reward:" line out of joke-y AI-voice prose."""
+    reliable than scraping a "Reward:" line out of joke-y AI-voice prose.
+
+    Some pages write the infobox field as a bare placeholder ("None",
+    "Nothing", ...) even though the AI-voice "Reward:" prose has the real
+    (joke) reward text, e.g. "Fall Into an Obvious Trap": box says "None",
+    prose says "Well, if there's a heaven... you about to meet your maker."
+    Treat those placeholders the same as an empty field - they aren't a
+    real value, so fall through to the prose scrape in build_kind() rather
+    than surface the un-fun literal.
+    """
     box = _extract_achievement_box(wikitext)
     if box is None:
         return None
@@ -220,19 +234,32 @@ def extract_infobox_reward(wikitext: str) -> str | None:
     if not match:
         return None
     cleaned = strip_markup(match.group(1).strip())
-    return cleaned or None
+    if not cleaned or cleaned.strip(".!").lower() in ("none", "nothing", "n/a", "tbd", "unknown"):
+        return None
+    return cleaned
 
 
 # ------------------------------------------------------------ spoiler tier ---
 
 
 def build_citation_index(books: list[dict]) -> list[tuple[re.Pattern, int]]:
+    """Book 1's alias, "Dungeon Crawler Carl", is also the series name, so it's
+    a literal substring of every OTHER book's full bibliographic citation
+    ("The Butcher's Masquerade: Dungeon Crawler Carl Book 5"). Unguarded, that
+    means citing any later book also falsely "cites" book 1 - and since
+    resolve_tier takes the earliest cited book, an achievement that's really
+    Book 5+ content could get tagged Book 1 wherever SpoilH doesn't happen to
+    override it. The negative lookahead excludes exactly that "... Book N"
+    subtitle form; a genuine book-1 citation is never written that way (its
+    own title has no "Book 1" suffix, e.g. "Dungeon Crawler Carl, Chapter 2").
+    """
     patterns: list[tuple[re.Pattern, int]] = []
     for book in books:
         for alias in book.get("citationAliases", []):
             if not alias.strip():
                 continue
-            patterns.append((re.compile(re.escape(alias), re.IGNORECASE), book["index"]))
+            pattern = re.escape(alias) + r"(?!\s*Book\s*\d)"
+            patterns.append((re.compile(pattern, re.IGNORECASE), book["index"]))
     return patterns
 
 
@@ -264,11 +291,16 @@ def resolve_tier(
     (more cautious) of the two rather than picking one source outright -
     for a spoiler filter, safe-but-late beats early-but-wrong.
     """
-    spoilh_match = RE_SPOILH.search(wikitext)
+    # Strip image galleries before signal-hunting: filenames/captions inside
+    # them are fan credits, not citations, but can contain the series name
+    # or a book title incidentally (see RE_GALLERY).
+    signal_text = RE_GALLERY.sub("", wikitext)
+
+    spoilh_match = RE_SPOILH.search(signal_text)
     spoilh_tier = int(spoilh_match.group(1)) if spoilh_match else None
 
-    cited = {idx for pattern, idx in citation_patterns if pattern.search(wikitext)}
-    cited |= {int(n) for n in RE_CITE_TEMPLATE.findall(wikitext)}
+    cited = {idx for pattern, idx in citation_patterns if pattern.search(signal_text)}
+    cited |= {int(n) for n in RE_CITE_TEMPLATE.findall(signal_text)}
     citation_tier = min(cited) if cited else None
 
     floors = {int(m) for m in RE_FLOOR_CAT.findall(wikitext)}

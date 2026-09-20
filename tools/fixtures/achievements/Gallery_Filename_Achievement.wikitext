@@ -1,0 +1,23 @@
+{{Achievement
+|title1= {{PAGENAME}}
+|floor= [[Eighth Floor]]
+|for= Something that only happens in Book 6
+|reward= Gold Box
+}}
+
+'''Gallery Filename''' is an [[achievement]] awarded for a Book 6 event.{{cite|6|1}}
+
+== AI Description ==
+<blockquote>
+'''New achievement! Gallery Filename.'''
+
+''Reward:'' Gold Box.
+</blockquote>
+
+===Gallery===
+<gallery>
+File:Something - Dungeon Crawler Carl.png|Art by a fan
+</gallery>
+
+[[Category:Achievements]]
+[[Category:Floor 8]]

@@ -1,0 +1,18 @@
+{{Achievement
+|title1= {{PAGENAME}}
+|floor= [[Eighth Floor]]
+|for= Something that only happens in Book 6
+|reward= Gold Box
+}}
+
+'''Citation Subtitle''' is an [[achievement]] awarded for a Book 6 event.
+
+== AI Description ==
+<blockquote>
+'''New achievement! Citation Subtitle.'''
+
+''Reward:'' Gold Box.<ref>Dinniman, Matt. The Eye of the Bedlam Bride: Dungeon Crawler Carl Book 6 (p. 1). Dandy House. Kindle Edition.</ref>
+</blockquote>
+
+[[Category:Achievements]]
+[[Category:Floor 8]]
