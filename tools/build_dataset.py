@@ -70,9 +70,12 @@ RE_CITE_INLINE = re.compile(r"\{\{\s*(?:cite|ref)\s*\|[^{}]*\}\}", re.IGNORECASE
 RE_SPOILH = re.compile(r"\{\{\s*SpoilH\s*\|\s*(\d+)\s*\}\}", re.IGNORECASE)
 RE_BLOCKQUOTE = re.compile(r"<blockquote>(.*?)</blockquote>", re.DOTALL | re.IGNORECASE)
 RE_PARA = re.compile(r"<p>(.*?)</p>", re.DOTALL | re.IGNORECASE)
-# The {{Achievement|...}} infobox, e.g. "| reward = Celestial [[Predator Box]]".
-RE_ACHIEVEMENT_BOX = re.compile(r"\{\{\s*Achievement\b(.*?)\n\}\}", re.DOTALL | re.IGNORECASE)
-RE_BOX_REWARD = re.compile(r"^\s*\|\s*reward\s*=\s*(.+)$", re.IGNORECASE | re.MULTILINE)
+# Matches a "|reward = ..." line inside an {{Achievement ...}} box body
+# (see _extract_achievement_box), e.g. "| reward = Celestial [[Predator Box]]".
+# The space after '=' is [ \t] rather than \s: \s matches newlines too, so on
+# a blank "|reward=" line \s* would cross the line break and pick up the
+# NEXT field's value ("|image1=...") as if it were the reward.
+RE_BOX_REWARD = re.compile(r"^[ \t]*\|[ \t]*reward[ \t]*=[ \t]*(.+)$", re.IGNORECASE | re.MULTILINE)
 RE_REWARD = re.compile(r"^\s*'*Reward:'*\s*(.+)$", re.IGNORECASE | re.MULTILINE)
 RE_WS = re.compile(r"[ \t]+")
 RE_BLANKS = re.compile(r"\n{3,}")
@@ -177,13 +180,43 @@ def extract_quote_block(wikitext: str) -> tuple[str, str]:
     return "", "none"
 
 
+def _extract_achievement_box(wikitext: str) -> str | None:
+    """The body of the first {{Achievement ... }} template, found by tracking
+    brace depth rather than regexing for the closing '}}'.
+
+    Most pages nest a {{PAGENAME}} template inside a field (|title1=
+    {{PAGENAME}}), and the box often closes on the same line as its last
+    field (...|reward=X}}) rather than on its own line. A non-greedy
+    '.*?\\}\\}' regex gets either of those wrong - it stops at PAGENAME's own
+    '}}' if unanchored, or misses same-line closes if anchored to '\\n\\}\\}'.
+    """
+    start_match = re.search(r"\{\{\s*Achievement\b", wikitext, re.IGNORECASE)
+    if not start_match:
+        return None
+    depth = 1
+    i = start_match.end()
+    while i < len(wikitext) - 1:
+        pair = wikitext[i : i + 2]
+        if pair == "{{":
+            depth += 1
+            i += 2
+        elif pair == "}}":
+            depth -= 1
+            if depth == 0:
+                return wikitext[start_match.end() : i]
+            i += 2
+        else:
+            i += 1
+    return None
+
+
 def extract_infobox_reward(wikitext: str) -> str | None:
     """The {{Achievement|...|reward=...}} infobox field - cleaner and more
     reliable than scraping a "Reward:" line out of joke-y AI-voice prose."""
-    box = RE_ACHIEVEMENT_BOX.search(wikitext)
-    if not box:
+    box = _extract_achievement_box(wikitext)
+    if box is None:
         return None
-    match = RE_BOX_REWARD.search(box.group(1))
+    match = RE_BOX_REWARD.search(box)
     if not match:
         return None
     cleaned = strip_markup(match.group(1).strip())

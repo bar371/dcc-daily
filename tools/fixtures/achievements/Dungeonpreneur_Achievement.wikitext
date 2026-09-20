@@ -1,0 +1,16 @@
+{{Achievement
+|title1= {{PAGENAME}}
+|floor=[[Second Floor]] (or varies)
+|for=* Inventing a weapon, device, or potion
+|reward=* Royalties (minus taxes)}}'''Dungeonpreneur''' is an [[achievement]] granted the first time a [[crawler]] develops a weapon, device, or [[potion]] that can stack.{{cite|1|35}}
+
+==AI Description ==
+<blockquote>'''New achievement! ''Dungeonpreneur.'''''
+<p>You have invented a stackable weapon, device, or potion.</p>
+<p>''Reward:'' For every kill made with this device by other crawlers, you will receive a single [[gold|gold coin]], for the remainder of your natural life.<ref>{{ref|1|35}} (p. 306). Kindle Edition.</ref></p></blockquote>
+
+==References==
+<references />
+
+[[Category:Achievements]]
+[[Category:Floor 2]]

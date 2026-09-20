@@ -50,7 +50,22 @@ def run():
     check("Cautious Reveal tier", cr["spoilerTier"], 5)
     check("Cautious Reveal signal", cr["tierSignal"], "spoilh")
 
-    check("stats total", stats["total"], 4)
+    # Infobox closes on the same line as its last field (no "\n}}"), and
+    # {{PAGENAME}} is nested inside an earlier field - regression test for a
+    # bug where the reward extractor either missed the box entirely (falling
+    # back to messy AI-voice prose) or stopped at PAGENAME's own "}}".
+    dp = by_title["Dungeonpreneur"]
+    check("Dungeonpreneur reward", dp["reward"], "Royalties (minus taxes)")
+
+    # Blank "|reward=" field must fall through to the prose "Reward:" line,
+    # not swallow the next infobox field's value - \s* after "=" matches
+    # newlines, so an earlier version of the regex read "|image1=" instead.
+    mg = by_title["Menagerie"]
+    if not mg["reward"] or "|" in mg["reward"] or "image1" in mg["reward"]:
+        fails.append(f"Menagerie reward leaked infobox syntax: {mg['reward']!r}")
+    check("Menagerie reward", mg["reward"], "You have a key. It opens only one cage.")
+
+    check("stats total", stats["total"], 6)
 
     for e in entries:
         if not e["sourceUrl"].startswith("https://"):
