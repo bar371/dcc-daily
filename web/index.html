@@ -28,18 +28,20 @@
 
   <article class="card" id="card" aria-live="polite"></article>
 
+  <p class="shuffle-row">
+    <button id="reseed" type="button">Shuffle - show me another</button>
+  </p>
+
   <details class="panel">
     <summary>Settings</summary>
     <div class="panel-inner">
       <label for="book">How far have you read? Nothing past this point will show.</label>
       <select id="book"></select>
       <p class="count" id="count"></p>
-      <p style="margin-top:1rem">
-        <button id="reseed" type="button">Shuffle my order</button>
-      </p>
       <p class="count">
-        Your order is drawn from a random number stored only on this device.
-        Shuffling gives you a different sequence from here on.
+        Shuffling draws a new random order from a number stored only on this
+        device, so today's pick changes right away instead of waiting for
+        midnight.
       </p>
     </div>
   </details>

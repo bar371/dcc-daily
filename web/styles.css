@@ -144,6 +144,9 @@ body {
 }
 .meta a { color: var(--dim); }
 
+.shuffle-row { margin: 0.9rem 0 0; text-align: center; }
+.shuffle-row button { width: 100%; padding: 0.75rem 1rem; }
+
 /* ---- controls ---- */
 
 .bar {
