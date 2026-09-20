@@ -12,7 +12,7 @@ def run():
     shutil.copytree(ROOT / "tools" / "fixtures" / "achievements", tmp / "achievements")
     bd.RAW_DIR = tmp
     config = json.loads((ROOT / "config" / "books.json").read_text())
-    entries, stats = bd.build_kind("achievements", config, verbose=False)
+    entries, stats = bd.build_kind("achievements", config, verbose=False, image_urls={})
     by_title = {e["title"]: e for e in entries}
     fails = []
 
@@ -85,6 +85,40 @@ def run():
     check("Gallery Filename tier", gf["spoilerTier"], 6)
 
     check("stats total", stats["total"], 9)
+
+    # extract_primary_image() edge cases, tested directly since build_kind()
+    # only wires an "image" onto an entry when fetch_images.py's URL cache
+    # (network-fetched, not available in this offline test) already has the
+    # filename - these exercise the filename/credit parsing on its own.
+
+    # Box closes same-line as |image1= (trailing "}}" on the filename).
+    img = bd.extract_primary_image(
+        "{{Achievement\n|title1= {{PAGENAME}}\n|image1=Shopping Cart.jpg}}\nbody text"
+    )
+    check("image same-line box close", img and img["file"], "Shopping Cart.jpg")
+
+    # Bare "File:" prefix with no [[ ]] wikilink brackets.
+    img = bd.extract_primary_image("{{Achievement\n|image1 = File:Cover.jpg\n}}\nbody")
+    check("image bare File: prefix", img and img["file"], "Cover.jpg")
+
+    # A full [[File:...|thumb|...]] wikilink written directly into the field.
+    img = bd.extract_primary_image(
+        "{{Achievement\n|image1=[[File:Hadji (1964).png|thumb|Hadji from Jonny Quest]]\n}}\nbody"
+    )
+    check("image wikilink-in-field", img and img["file"], "Hadji (1964).png")
+
+    # Blank infobox image field -> falls back to the first <gallery> entry,
+    # not the second field's value (same \s*-crosses-newlines risk as reward).
+    img = bd.extract_primary_image(
+        "{{Achievement\n|image1=\n|floor=[[First Floor]]\n}}\nbody\n"
+        "<gallery>\nFile:Real Art.jpg|Art by someone\n</gallery>"
+    )
+    check("image blank field falls to gallery", img and img["file"], "Real Art.jpg")
+    check("image gallery credit", img and img["credit"], "Art by someone")
+
+    # No image field and no gallery -> no fabricated image.
+    img = bd.extract_primary_image("{{Achievement\n|floor=[[First Floor]]\n}}\nno pictures here")
+    check("image absent stays absent", img, None)
 
     for e in entries:
         if not e["sourceUrl"].startswith("https://"):

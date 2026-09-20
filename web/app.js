@@ -106,7 +106,34 @@ function render() {
   body.className = "body-text";
   body.textContent = entry.body;
 
-  card.append(banner, name, body);
+  card.append(banner, name);
+
+  if (entry.image) {
+    const figure = document.createElement("figure");
+    figure.className = "art";
+    const img = document.createElement("img");
+    img.src = entry.image.url;
+    img.alt = "";
+    img.loading = "lazy";
+    figure.append(img);
+    if (entry.image.credit) {
+      const cap = document.createElement("figcaption");
+      if (entry.image.wikiPage) {
+        const link = document.createElement("a");
+        link.href = entry.image.wikiPage;
+        link.rel = "noopener";
+        link.target = "_blank";
+        link.textContent = entry.image.credit;
+        cap.append(link);
+      } else {
+        cap.textContent = entry.image.credit;
+      }
+      figure.append(cap);
+    }
+    card.append(figure);
+  }
+
+  card.append(body);
 
   if (entry.reward) {
     const reward = document.createElement("p");

@@ -82,6 +82,13 @@ RE_PARA = re.compile(r"<p>(.*?)</p>", re.DOTALL | re.IGNORECASE)
 # NEXT field's value ("|image1=...") as if it were the reward.
 RE_BOX_REWARD = re.compile(r"^[ \t]*\|[ \t]*reward[ \t]*=[ \t]*(.+)$", re.IGNORECASE | re.MULTILINE)
 RE_REWARD = re.compile(r"^\s*'*Reward:'*\s*(.+)$", re.IGNORECASE | re.MULTILINE)
+# Same [ \t]-not-\s reasoning as RE_BOX_REWARD applies to every "|field="
+# line-value regex below: \s* after '=' would cross a blank field onto the
+# next line's content.
+RE_IMAGE_FIELD = re.compile(r"^[ \t]*\|[ \t]*image1?[ \t]*=[ \t]*(.+)$", re.IGNORECASE | re.MULTILINE)
+RE_CAPTION_FIELD = re.compile(r"^[ \t]*\|[ \t]*caption-?image1?[ \t]*=[ \t]*(.+)$", re.IGNORECASE | re.MULTILINE)
+RE_GALLERY_FILE = re.compile(r"^[ \t]*File:([^|\n}]+?)[ \t]*(?:\|([^\n}]*))?$", re.IGNORECASE | re.MULTILINE)
+IMG_EXTENSIONS = re.compile(r"\.(png|jpe?g|gif|webp)$", re.IGNORECASE)
 RE_WS = re.compile(r"[ \t]+")
 RE_BLANKS = re.compile(r"\n{3,}")
 
@@ -239,6 +246,52 @@ def extract_infobox_reward(wikitext: str) -> str | None:
     return cleaned
 
 
+def _clean_filename(raw: str) -> str | None:
+    """Reduce a File:/image field value to a bare "Name.png" filename.
+
+    Field values show up in several shapes: a bare filename, a filename with
+    trailing display params ("X.png|thumb"), a full [[File:X.png|thumb|...]]
+    wikilink written directly into the field, or - because the box can close
+    on the same line as this field (see _extract_achievement_box) - a
+    filename with a stray trailing "}}".
+    """
+    raw = raw.strip()
+    link = RE_FILE.search(raw)
+    if link:
+        raw = re.sub(r"^\[\[(?:File|Image):", "", link.group(0), flags=re.IGNORECASE).rstrip("]")
+    raw = re.sub(r"^(?:File|Image):", "", raw, flags=re.IGNORECASE)
+    raw = raw.split("|", 1)[0].strip().rstrip("}").strip()
+    return raw if raw and IMG_EXTENSIONS.search(raw) else None
+
+
+def extract_primary_image(wikitext: str) -> dict | None:
+    """The page's lead image: the infobox |image1=/|image= field, or failing
+    that the first <gallery> entry. Returns {"file": ..., "credit": ...} -
+    "credit" (usually "Art by u/name, Reddit") is None if the page doesn't
+    caption it. Filename only - resolving it to a real URL needs a separate
+    imageinfo API call (see tools/fetch_images.py), so this stays offline
+    and testable like the rest of the extractors here.
+    """
+    field = RE_IMAGE_FIELD.search(wikitext)
+    if field:
+        filename = _clean_filename(field.group(1))
+        if filename:
+            cap = RE_CAPTION_FIELD.search(wikitext)
+            credit = strip_markup(cap.group(1).strip().rstrip("}").strip()) if cap else ""
+            return {"file": filename, "credit": credit or None}
+
+    gallery = RE_GALLERY.search(wikitext)
+    if gallery:
+        first = RE_GALLERY_FILE.search(gallery.group(0))
+        if first:
+            filename = _clean_filename(first.group(1))
+            if filename:
+                credit = strip_markup(first.group(2).strip()) if first.group(2) else ""
+                return {"file": filename, "credit": credit or None}
+
+    return None
+
+
 # ------------------------------------------------------------ spoiler tier ---
 
 
@@ -328,7 +381,18 @@ def entry_id(kind: str, title: str) -> str:
     return f"{kind[:3]}_{digest}"
 
 
-def build_kind(kind: str, config: dict, verbose: bool) -> tuple[list[dict], dict]:
+def load_image_urls() -> dict[str, str]:
+    """Filename -> direct CDN URL, from tools/fetch_images.py's cache.
+
+    Optional: build_dataset.py must keep working (and stay test-covered)
+    with no network access, so a missing cache just means entries come back
+    with no image rather than an error.
+    """
+    path = RAW_DIR / "image_urls.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+
+def build_kind(kind: str, config: dict, verbose: bool, image_urls: dict[str, str]) -> tuple[list[dict], dict]:
     src_dir = RAW_DIR / kind
     if not src_dir.exists():
         print(f"skip {kind}: no raw/{kind} (run tools/fetch_wiki.py first)")
@@ -373,6 +437,15 @@ def build_kind(kind: str, config: dict, verbose: bool) -> tuple[list[dict], dict
             # style it separately instead of printing it twice.
             body = RE_REWARD.sub("", body).strip()
 
+        image = None
+        found_image = extract_primary_image(wikitext)
+        if found_image and found_image["file"] in image_urls:
+            image = {
+                "url": image_urls[found_image["file"]],
+                "credit": found_image["credit"],
+                "wikiPage": WIKI_BASE + "File:" + found_image["file"].replace(" ", "_"),
+            }
+
         stats["total"] += 1
         stats[signal] += 1
         if not body:
@@ -390,6 +463,7 @@ def build_kind(kind: str, config: dict, verbose: bool) -> tuple[list[dict], dict
                 "floor": floor,
                 "bodySource": strategy,
                 "sourceUrl": WIKI_BASE + raw_title.replace(" ", "_"),
+                "image": image,
             }
         )
 
@@ -413,9 +487,10 @@ def main() -> int:
     policy = config.get("unknownTierPolicy", "hide")
     max_tier = max(b["index"] for b in config["books"])
 
+    image_urls = load_image_urls()
     all_entries: list[dict] = []
     for kind in ("achievements", "monsters"):
-        entries, stats = build_kind(kind, config, args.report)
+        entries, stats = build_kind(kind, config, args.report, image_urls)
         if stats:
             print(
                 f"{kind}: {stats['total']} pages | "
