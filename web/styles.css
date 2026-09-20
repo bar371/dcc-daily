@@ -213,6 +213,7 @@ footer {
   color: var(--dim);
 }
 footer a { color: var(--dim); }
+footer .disclaimer { font-style: italic; margin-bottom: 0.9rem; }
 
 .empty { padding: 2rem 1.1rem; color: var(--dim); }
 
