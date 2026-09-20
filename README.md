@@ -35,13 +35,22 @@ it gives up is locally scheduled notifications.
 
 Full breakdown in [`PLAN.md`](PLAN.md).
 
-## Quick start
+## Getting real data into it
+
+Nothing to install. Push the repo, then **Actions → publish → Run workflow**
+with **include_data** ticked. The runner scrapes the wiki, validates the
+result, and deploys. Details and other hosts in [`docs/deploy.md`](docs/deploy.md).
+
+Until that runs, the site shows placeholder cards and says so.
+
+## Running it locally
 
 No dependencies. Python 3.9+.
 
     python3 tools/test_parse.py              # parser, offline
     python3 tools/test_fetch.py              # fetcher against a mocked API
     node web/test_picker.js                  # daily-pick algorithm
+    cd web && python3 -m http.server 8000    # serve it
     python3 tools/fetch_wiki.py              # ~3 min, caches to raw/
     python3 tools/build_dataset.py --report  # -> data/entries.json
 

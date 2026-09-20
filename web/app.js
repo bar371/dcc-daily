@@ -48,6 +48,24 @@ function pickFor(day) {
 
 /* ---------- rendering ---------- */
 
+function showDemoNotice() {
+  const el = $("#notice");
+  el.hidden = false;
+  el.innerHTML = "";
+  const strong = document.createElement("strong");
+  strong.textContent = "Showing placeholder data.";
+  const rest = document.createElement("span");
+  rest.textContent =
+    " No entries.json was found, so these cards are samples, not real " +
+    "achievements. Run the scraper and deploy the dataset to replace them.";
+  el.append(strong, rest);
+  if (state.loadError) {
+    const why = document.createElement("code");
+    why.textContent = state.loadError;
+    el.append(document.createElement("br"), why);
+  }
+}
+
 const $ = (sel) => document.querySelector(sel);
 
 function text(el, value) {
@@ -145,11 +163,18 @@ function buildBookSelect() {
 async function boot() {
   try {
     const res = await fetch("entries.json", { cache: "no-cache" });
-    if (!res.ok) throw new Error(res.status);
-    state.dataset = await res.json();
-  } catch {
+    if (!res.ok) throw new Error(`entries.json returned ${res.status}`);
+    const data = await res.json();
+    if (!Array.isArray(data.entries) || !data.entries.length) {
+      throw new Error("entries.json has no entries");
+    }
+    state.dataset = data;
+  } catch (err) {
     state.dataset = window.DCC_FALLBACK || { books: [], entries: [] };
+    state.dataset.demo = true;
+    state.loadError = err.message;
   }
+  if (state.dataset.demo) showDemoNotice();
   if (!state.dataset.books?.length) {
     state.dataset.books = [{ index: 1, title: "Dungeon Crawler Carl", short: "Book 1" }];
   }

@@ -54,17 +54,38 @@ thing entirely.
 
 Deploys on every push. Add family emails to the policy if you want them in.
 
-## Option B — GitHub Pages
+## Option B — GitHub Pages, no local setup at all
 
-Simplest, already wired: `.github/workflows/pages.yml` runs the picker tests,
-assembles `web/` plus `data/entries.json`, and deploys on every push to `main`.
+The fastest way to see real data, and it needs nothing installed on your
+machine. GitHub's runners have full internet access, so they do the scraping.
 
-Enable it once: **Settings → Pages → Source: GitHub Actions**. Lands at
-`https://bar371.github.io/dcc-daily/`.
+1. Push to `bar371/dcc-daily`.
+2. **Settings → Pages → Source: GitHub Actions**.
+3. **Actions → publish → Run workflow**, tick **include_data**.
 
-The workflow only ships `entries.json` if that file is committed. Left out, the
-site runs on the placeholder data and is harmless to have public — which is a
-reasonable way to use this: public shell, real data only on a private host.
+That one run scrapes the wiki, builds the dataset, refuses to deploy if it
+looks wrong, and publishes to `https://bar371.github.io/dcc-daily/`. Takes
+about four minutes, most of it the polite 1-request-per-second throttle.
+
+**The dataset is never committed.** Pages deploys from an uploaded artifact
+rather than from the repo, so `entries.json` is generated at build time and
+discarded. Roughly 150 passages of someone else's copyrighted prose stay out
+of your git history, which is where you want them.
+
+Leave **include_data** unticked and you get the shell on placeholder data —
+safe to have public, and a sensible way to check the layout before deciding
+where the real thing should live.
+
+The run also attaches `entries.json` and the parse report as a downloadable
+artifact, so you can review the data without deploying it anywhere. Worth
+doing on the first run: download it, read the report, check the tiers.
+
+### The gate
+
+The workflow refuses to deploy a dataset that is obviously broken — fewer
+than 60 entries, fewer than 10 at Book 1, more than a quarter of bodies under
+80 characters, or any entry with no spoiler tier. A silent bad scrape
+replacing good data is worse than a failed run.
 
 ## Option C — your own server
 

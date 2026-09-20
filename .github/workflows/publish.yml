@@ -1,0 +1,142 @@
+name: publish
+
+# Scrape the wiki, build the dataset, and deploy the site - all on the runner.
+#
+# The dataset is NEVER committed. GitHub Pages deploys from an uploaded
+# artifact rather than from the repo, so entries.json is generated fresh at
+# build time and thrown away. That keeps ~150 passages of someone else's
+# copyrighted prose out of your git history, which is where you want it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      include_data:
+        description: "Ship real wiki data? A Pages site is PUBLIC - see docs/deploy.md"
+        type: boolean
+        default: false
+      min_entries:
+        description: "Abort if the scrape yields fewer than this many entries"
+        type: string
+        default: "60"
+  schedule:
+    # Monthly refresh. Runs with include_data off, so a scheduled run only
+    # ever redeploys the shell unless you change the default below.
+    - cron: "0 4 1 * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test everything before it can ship
+        run: |
+          python3 tools/test_parse.py
+          python3 tools/test_fetch.py
+          node web/test_picker.js
+
+      # Keeps repeat runs fast and keeps request volume off Fandom.
+      - name: Restore scraped wikitext
+        if: inputs.include_data
+        uses: actions/cache@v4
+        with:
+          path: raw
+          key: wiki-raw-${{ github.run_id }}
+          restore-keys: wiki-raw-
+
+      - name: Scrape the wiki
+        if: inputs.include_data
+        run: python3 tools/fetch_wiki.py
+
+      - name: Build the dataset
+        if: inputs.include_data
+        run: python3 tools/build_dataset.py --report | tee report.txt
+
+      - name: Check the dataset is usable before deploying it
+        if: inputs.include_data
+        env:
+          MIN: ${{ inputs.min_entries }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, collections
+          minimum = int(os.environ.get("MIN") or 60)
+          d = json.load(open("data/entries.json"))
+          entries = d["entries"]
+          problems = []
+
+          if len(entries) < minimum:
+              problems.append(f"only {len(entries)} entries, wanted >= {minimum}")
+
+          # A reader on book 1 must have something to look at.
+          tier1 = [e for e in entries if e["spoilerTier"] == 1]
+          if len(tier1) < 10:
+              problems.append(f"only {len(tier1)} entries at Book 1 - app feels empty on day one")
+
+          # Bodies that are too short read as broken cards.
+          stubs = [e for e in entries if len(e["body"]) < 80]
+          if len(stubs) > len(entries) * 0.25:
+              problems.append(f"{len(stubs)}/{len(entries)} bodies under 80 chars - parser likely misfiring")
+
+          # The spoiler gate is the point. No entry may lack a tier.
+          untiered = [e for e in entries if not isinstance(e.get("spoilerTier"), int)]
+          if untiered:
+              problems.append(f"{len(untiered)} entries have no spoiler tier")
+
+          spread = collections.Counter(e["spoilerTier"] for e in entries)
+          print("entries per book:", dict(sorted(spread.items())))
+          print("tier signal:", dict(collections.Counter(e["tierSignal"] for e in entries)))
+
+          if problems:
+              print("\n::error::dataset failed validation")
+              for p in problems:
+                  print(f"  - {p}")
+              sys.exit(1)
+          print(f"\nOK: {len(entries)} entries")
+          PY
+
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp -r web/* _site/
+          rm -f _site/test_picker.js
+          if [ "${{ inputs.include_data }}" = "true" ] && [ -f data/entries.json ]; then
+            cp data/entries.json _site/entries.json
+            echo "### Deployed with real data" >> $GITHUB_STEP_SUMMARY
+            echo "This Pages site is public. See docs/deploy.md." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Deployed with placeholder data" >> $GITHUB_STEP_SUMMARY
+            echo "Re-run with \`include_data\` ticked to ship the real dataset." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Attach the dataset for download
+        if: inputs.include_data
+        uses: actions/upload-artifact@v4
+        with:
+          name: entries-json
+          path: |
+            data/entries.json
+            report.txt
+          retention-days: 7
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4
