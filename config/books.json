@@ -1,0 +1,91 @@
+{
+  "_comment": [
+    "Drives the spoiler filter. 'index' is the reading-order tier: an entry is shown",
+    "only if entry.spoilerTier <= user's finished book index.",
+    "'floors' is the secondary signal, used when an entry has no citation but does",
+    "appear on a 'Floor N Achievements' index page.",
+    "VERIFY THE FLOOR RANGES BEFORE FIRST RELEASE - see docs/spoilers.md.",
+    "Titles must match the wiki's <ref> citation spelling exactly, or add variants",
+    "to 'citationAliases'."
+  ],
+  "books": [
+    {
+      "index": 1,
+      "title": "Dungeon Crawler Carl",
+      "short": "Book 1",
+      "floors": [0, 1, 2],
+      "citationAliases": ["Dungeon Crawler Carl"],
+      "verified": false
+    },
+    {
+      "index": 2,
+      "title": "Carl's Doomsday Scenario",
+      "short": "Book 2",
+      "floors": [3],
+      "citationAliases": ["Carl's Doomsday Scenario", "Carl\u2019s Doomsday Scenario"],
+      "verified": false
+    },
+    {
+      "index": 3,
+      "title": "The Dungeon Anarchist's Cookbook",
+      "short": "Book 3",
+      "floors": [4],
+      "citationAliases": [
+        "The Dungeon Anarchist's Cookbook",
+        "The Dungeon Anarchist\u2019s Cookbook",
+        "Dungeon Anarchist's Cookbook"
+      ],
+      "verified": false
+    },
+    {
+      "index": 4,
+      "title": "The Gate of the Feral Gods",
+      "short": "Book 4",
+      "floors": [5],
+      "citationAliases": ["The Gate of the Feral Gods", "Gate of the Feral Gods"],
+      "verified": false
+    },
+    {
+      "index": 5,
+      "title": "The Butcher's Masquerade",
+      "short": "Book 5",
+      "floors": [6],
+      "citationAliases": [
+        "The Butcher's Masquerade",
+        "The Butcher\u2019s Masquerade",
+        "Butcher's Masquerade"
+      ],
+      "verified": false
+    },
+    {
+      "index": 6,
+      "title": "The Eye of the Bedlam Bride",
+      "short": "Book 6",
+      "floors": [7, 8],
+      "citationAliases": ["The Eye of the Bedlam Bride", "Eye of the Bedlam Bride"],
+      "verified": false
+    },
+    {
+      "index": 7,
+      "title": "This Inevitable Ruin",
+      "short": "Book 7",
+      "floors": [9],
+      "citationAliases": ["This Inevitable Ruin"],
+      "verified": false
+    },
+    {
+      "index": 8,
+      "title": "Book 8",
+      "short": "Book 8",
+      "floors": [10],
+      "citationAliases": [],
+      "verified": false
+    }
+  ],
+  "unknownTierPolicy": "hide",
+  "_unknownTierPolicyOptions": [
+    "hide  - safest: entries with no confident tier never appear",
+    "max   - treat as the newest book (only full-series readers see them)",
+    "show  - always show (spoiler risk)"
+  ]
+}

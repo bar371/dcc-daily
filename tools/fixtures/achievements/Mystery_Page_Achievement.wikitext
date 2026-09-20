@@ -1,0 +1,3 @@
+'''Mystery Page''' is an [[Achievement]] with no citations and no floor category at all, which is exactly the case the tier resolver has to handle without guessing.
+
+[[Category:Achievements]]
