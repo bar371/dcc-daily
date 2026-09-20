@@ -22,7 +22,7 @@ only from the books you've finished. No ads, no accounts, no network required.
 
 | Phase | State |
 |---|---|
-| 1. Data pipeline | **Done**, tests passing, not yet run against the live wiki |
+| 1. Data pipeline | **Written**, two test suites passing — but see *What is and isn't tested* |
 | 2. Dataset curation | Blocked on your Phase 1 run |
 | 3. Flutter app | Not started |
 | 4. Notifications | Not started |
@@ -35,9 +35,35 @@ Full breakdown in [`PLAN.md`](PLAN.md).
 
 No dependencies. Python 3.9+.
 
-    python3 tools/test_parse.py              # verify the parser (offline)
+    python3 tools/test_parse.py              # parser, offline
+    python3 tools/test_fetch.py              # fetcher against a mocked API
     python3 tools/fetch_wiki.py              # ~3 min, caches to raw/
     python3 tools/build_dataset.py --report  # -> data/entries.json
+
+## What is and isn't tested
+
+Be clear-eyed about this before trusting the output.
+
+**Tested, really:**
+- Parser logic — tier resolution (citation > floor > unresolved), reward
+  extraction, markup stripping. Caught one real bug: rewards inside
+  `{{Quote}}` templates were stripped before extraction.
+- Fetcher code paths against a mocked API — continuation, 50-title batching,
+  missing-page skipping, retry/backoff, API errors surfacing not swallowing.
+- `slug()` against all 150 real achievement titles scraped from the live
+  category page. Zero collisions, zero truncation.
+
+**Not tested, at all:**
+- A single real HTTP request to the wiki. The build environment had no route
+  to fandom.com.
+- The parser against real wikitext. The fixtures in `tools/fixtures/` are
+  *invented* — written by the same hand as the regex they exercise. They prove
+  the parser is self-consistent, not that it matches how the wiki is written.
+  Expect the first live run to mis-parse pages.
+- Both CI workflows.
+- Anything Flutter. Nothing exists.
+
+The `--report` flag on `build_dataset.py` exists for exactly this reason.
 
 ## Layout
 

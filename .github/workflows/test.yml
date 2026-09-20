@@ -14,5 +14,7 @@ jobs:
           python-version: "3.12"
       - name: Parser fixture tests
         run: python3 tools/test_parse.py
+      - name: Fetcher tests (mocked API)
+        run: python3 tools/test_fetch.py
       - name: books.json is valid
         run: python3 -c "import json; json.load(open('config/books.json'))"

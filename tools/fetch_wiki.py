@@ -16,6 +16,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 import time
@@ -122,8 +123,16 @@ def fetch_wikitext(titles: list[str]) -> dict[str, str]:
 
 
 def slug(title: str) -> str:
-    keep = "".join(c if c.isalnum() else "_" for c in title)
-    return keep.strip("_")[:120]
+    """Filesystem-safe cache name.
+
+    The readable part maps all punctuation to '_', so "A Trap?" and "A Trap!"
+    would land on the same file. No collisions exist across the current 150
+    achievement titles, but one new page could silently overwrite another's
+    cache, so a short digest of the exact title is appended.
+    """
+    readable = "".join(c if c.isalnum() else "_" for c in title).strip("_")[:100]
+    digest = hashlib.sha1(title.encode("utf-8")).hexdigest()[:8]
+    return f"{readable}-{digest}"
 
 
 def harvest(kind: str, categories: list[str], refresh: bool) -> None:
