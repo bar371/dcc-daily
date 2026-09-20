@@ -6,12 +6,10 @@ text, this one caches image *metadata* (a direct CDN URL + the credited
 artist) via the MediaWiki imageinfo API - it never downloads image bytes.
 
 Why metadata-only: most of these are individual fan art (Reddit/Instagram
-handles, small studios), not Fandom's own work, and NOTICE.md already treats
-the wiki's prose as something to keep off the open web for copyright reasons.
-Hotlinking the same CDN URL the wiki itself serves, with credit shown and a
-link back to the source page, keeps this app's exposure the same as browsing
-the wiki - copying the pixels into this repo would be a step further than
-that.
+handles, small studios), not Fandom's own work. Hotlinking the same CDN URL
+the wiki itself serves, with credit shown and a link back to the source page,
+keeps this app's exposure the same as browsing the wiki - copying the pixels
+into this repo would be a step further than that.
 
 Usage:
     python3 tools/fetch_images.py            # resolve anything not yet cached

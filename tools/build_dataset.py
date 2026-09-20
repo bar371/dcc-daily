@@ -522,7 +522,7 @@ def main() -> int:
     dataset = {
         "version": 1,
         "source": "Dungeon Crawler Carl Wiki (Fandom)",
-        "license": "CC BY-SA 3.0 - see NOTICE.md",
+        "license": "CC BY-SA 3.0",
         "books": [
             {"index": b["index"], "title": b["title"], "short": b["short"]}
             for b in config["books"]
