@@ -54,37 +54,7 @@ No dependencies. Python 3.9+.
     python3 tools/fetch_wiki.py              # ~3 min, caches to raw/
     python3 tools/build_dataset.py --report  # -> data/entries.json
 
-## What is and isn't tested
 
-Be clear-eyed about this before trusting the output.
-
-**Tested, really:**
-- Parser logic — tier resolution (citation > floor > unresolved), reward
-  extraction, markup stripping. Caught one real bug: rewards inside
-  `{{Quote}}` templates were stripped before extraction.
-- Fetcher code paths against a mocked API — continuation, 50-title batching,
-  missing-page skipping, retry/backoff, API errors surfacing not swallowing.
-- `slug()` against all 150 real achievement titles scraped from the live
-  category page. Zero collisions, zero truncation.
-- The daily-pick algorithm: no repeat until the pool is exhausted, stable
-  within a day, reshuffles each cycle, distinct per seed, spoiler gate never
-  leaks across 200 days, and the edges (empty pool, single entry, dates before
-  the epoch, local midnight vs UTC) all behave.
-
-**Not tested, at all:**
-- A single real HTTP request to the wiki. The build environment had no route
-  to fandom.com.
-- The parser against real wikitext. The fixtures in `tools/fixtures/` are
-  *invented* — written by the same hand as the regex they exercise. They prove
-  the parser is self-consistent, not that it matches how the wiki is written.
-  Expect the first live run to mis-parse pages.
-- Both CI workflows.
-- The web UI in a real browser. The markup and CSS have never been rendered
-  here — no browser in the build environment. Layout bugs are entirely
-  possible; the preview build is there for you to eyeball.
-- The service worker. Offline mode is unproven.
-
-The `--report` flag on `build_dataset.py` exists for exactly this reason.
 
 ## Layout
 
