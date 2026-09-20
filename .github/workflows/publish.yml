@@ -64,6 +64,10 @@ jobs:
         if: inputs.include_data
         run: python3 tools/fetch_wiki.py
 
+      - name: Resolve artwork URLs
+        if: inputs.include_data
+        run: python3 tools/fetch_images.py
+
       - name: Build the dataset
         if: inputs.include_data
         run: python3 tools/build_dataset.py --report | tee report.txt
