@@ -20,17 +20,19 @@ def run():
         if got != want:
             fails.append(f"{label}: got {got!r}, want {want!r}")
 
-    # Citation beats floor, and the EARLIEST cited book wins (B1, not B3).
+    # {{cite|N|..}} template citation, and the EARLIEST cited book wins (B1, not B3).
     ym = by_title["You Monster!"]
     check("You Monster tier", ym["spoilerTier"], 1)
     check("You Monster signal", ym["tierSignal"], "citation")
-    check("You Monster body source", ym["bodySource"], "template")
-    if "Dinniman" in ym["body"]:
-        fails.append("You Monster body: citation leaked into body text")
+    check("You Monster body source", ym["bodySource"], "blockquote")
+    if "cite" in ym["body"] or "{{" in ym["body"]:
+        fails.append("You Monster body: template markup leaked into body text")
     if "New achievement!" not in ym["body"]:
         fails.append("You Monster body: System AI text missing")
+    if not ym["reward"] or "Bronze Loot Box" not in ym["reward"]:
+        fails.append(f"You Monster reward not extracted from infobox: {ym['reward']!r}")
 
-    # No citation -> fall back to Floor 6 -> Book 5.
+    # No citation or SpoilH -> fall back to Floor 6 -> Book 5.
     sv = by_title["Soft Vore"]
     check("Soft Vore tier", sv["spoilerTier"], 5)
     check("Soft Vore signal", sv["tierSignal"], "floor")
@@ -43,7 +45,12 @@ def run():
     check("Mystery tier", mp["spoilerTier"], None)
     check("Mystery signal", mp["tierSignal"], "none")
 
-    check("stats total", stats["total"], 3)
+    # SpoilH (5) disagrees with the lone early citation (2) -> take the safer, higher tier.
+    cr = by_title["Cautious Reveal"]
+    check("Cautious Reveal tier", cr["spoilerTier"], 5)
+    check("Cautious Reveal signal", cr["tierSignal"], "spoilh")
+
+    check("stats total", stats["total"], 4)
 
     for e in entries:
         if not e["sourceUrl"].startswith("https://"):
