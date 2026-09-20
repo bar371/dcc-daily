@@ -75,10 +75,10 @@
     },
     {
       "index": 8,
-      "title": "Book 8",
+      "title": "A Parade of Horribles",
       "short": "Book 8",
       "floors": [10],
-      "citationAliases": [],
+      "citationAliases": ["A Parade of Horribles", "Parade of Horribles"],
       "verified": false
     }
   ],
