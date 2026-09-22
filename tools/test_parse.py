@@ -84,7 +84,22 @@ def run():
     gf = by_title["Gallery Filename"]
     check("Gallery Filename tier", gf["spoilerTier"], 6)
 
-    check("stats total", stats["total"], 9)
+    # ==Description== is wiki-authored lore prose, separate from the
+    # ==AI Description== blockquote already captured in "body" - must not
+    # be confused with it, and must stop at the next heading (not leak
+    # into ==Trivia==).
+    wl = by_title["Wiki Lore"]
+    if not wl["description"] or "third person" not in wl["description"]:
+        fails.append(f"Wiki Lore description not extracted: {wl['description']!r}")
+    if wl["description"] and "nobody reads" in wl["description"]:
+        fails.append("Wiki Lore description: AI Description blockquote leaked in")
+    if wl["description"] and "must not leak" in wl["description"]:
+        fails.append("Wiki Lore description: Trivia section leaked in")
+
+    # No ==Description== heading on this fixture -> field stays absent.
+    check("You Monster description", ym["description"], None)
+
+    check("stats total", stats["total"], 10)
 
     # extract_primary_image() edge cases, tested directly since build_kind()
     # only wires an "image" onto an entry when fetch_images.py's URL cache

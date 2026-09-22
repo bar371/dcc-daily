@@ -135,6 +135,13 @@ function render() {
 
   card.append(body);
 
+  if (entry.description) {
+    const lore = document.createElement("p");
+    lore.className = "lore";
+    lore.textContent = entry.description;
+    card.append(lore);
+  }
+
   if (entry.reward) {
     const reward = document.createElement("p");
     reward.className = "reward";

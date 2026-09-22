@@ -192,6 +192,20 @@ def extract_quote_block(wikitext: str) -> tuple[str, str]:
     return "", "none"
 
 
+def extract_description(wikitext: str) -> str | None:
+    """The wiki-authored '==Description==' section (lore/summary prose) -
+    distinct from the System-AI '==AI Description==' blockquote already
+    captured by extract_quote_block(). Absent on many pages."""
+    headings = list(RE_HEADING.finditer(wikitext))
+    for i, m in enumerate(headings):
+        if m.group(1).strip().lower() == "description":
+            start = m.end()
+            end = headings[i + 1].start() if i + 1 < len(headings) else len(wikitext)
+            cleaned = strip_markup(wikitext[start:end])
+            return cleaned or None
+    return None
+
+
 def _extract_achievement_box(wikitext: str) -> str | None:
     """The body of the first {{Achievement ... }} template, found by tracking
     brace depth rather than regexing for the closing '}}'.
@@ -423,6 +437,7 @@ def build_kind(kind: str, config: dict, verbose: bool, image_urls: dict[str, str
             continue
 
         body, strategy = extract_quote_block(wikitext)
+        description = extract_description(wikitext)
         tier, signal, floor = resolve_tier(wikitext, citation_patterns, floor_map)
 
         # Prefer the structured {{Achievement|...|reward=...}} infobox field;
@@ -457,6 +472,7 @@ def build_kind(kind: str, config: dict, verbose: bool, image_urls: dict[str, str
                 "kind": kind,
                 "title": clean_title(raw_title),
                 "body": body,
+                "description": description,
                 "reward": reward,
                 "spoilerTier": tier,
                 "tierSignal": signal,

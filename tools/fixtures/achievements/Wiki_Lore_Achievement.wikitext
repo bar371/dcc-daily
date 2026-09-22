@@ -1,0 +1,19 @@
+{{Achievement
+| title1 = Wiki Lore
+| floor = [[First Floor]]
+| for = Testing the description extractor
+| reward = None
+}}
+'''Wiki Lore''' is a test fixture achievement.{{cite|1|1}}
+
+==AI Description==
+<blockquote><p>'''New achievement! Wiki Lore! You found the part of the page nobody reads!'''</p></blockquote>
+
+==Description==
+This is wiki-authored lore prose about the achievement, written in the third person rather than the System AI's voice.{{cite|1|2}} It spans more than one sentence so the extractor has real prose to grab.
+
+==Trivia==
+This trivia section must not leak into the description field.
+
+[[Category:Achievements]]
+[[Category:Floor 1]]
