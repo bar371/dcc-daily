@@ -1,0 +1,15 @@
+{{Achievement
+| title1 = System AI Quote
+| floor = [[First Floor]]
+| for = Testing that a System AI attributed quote template still counts as body
+| reward = None
+}}
+'''System AI Quote''' is a test fixture achievement used to confirm a System AI attributed quote template still counts as real AI-voice body text.{{cite|1|1}}
+
+{{Quote|New achievement! You found the quote template path!|System AI}}
+
+==Trivia==
+Nothing else here.
+
+[[Category:Achievements]]
+[[Category:Floor 1]]

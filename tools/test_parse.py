@@ -87,19 +87,51 @@ def run():
     # ==Description== is wiki-authored lore prose, separate from the
     # ==AI Description== blockquote already captured in "body" - must not
     # be confused with it, and must stop at the next heading (not leak
-    # into ==Trivia==).
+    # into ==Trivia==). The lead paragraph (before any heading) must also
+    # be folded in, since that's what a Fandom link preview actually shows.
     wl = by_title["Wiki Lore"]
     if not wl["description"] or "third person" not in wl["description"]:
-        fails.append(f"Wiki Lore description not extracted: {wl['description']!r}")
+        fails.append(f"Wiki Lore description missing the ==Description== section: {wl['description']!r}")
+    if not wl["description"] or "lead paragraph" not in wl["description"]:
+        fails.append(f"Wiki Lore description missing the lead paragraph: {wl['description']!r}")
     if wl["description"] and "nobody reads" in wl["description"]:
         fails.append("Wiki Lore description: AI Description blockquote leaked in")
     if wl["description"] and "must not leak" in wl["description"]:
         fails.append("Wiki Lore description: Trivia section leaked in")
 
-    # No ==Description== heading on this fixture -> field stays absent.
-    check("You Monster description", ym["description"], None)
+    # No ==Description== heading on this fixture, but there is a lead
+    # paragraph before the blockquote - it must be captured without
+    # duplicating the blockquote text that's already the body.
+    if not ym["description"] or "awarded when a crawler kills an infant" not in ym["description"]:
+        fails.append(f"You Monster description: lead paragraph missing: {ym['description']!r}")
+    if ym["description"] and "New achievement!" in ym["description"]:
+        fails.append("You Monster description: blockquote body duplicated into description")
 
-    check("stats total", stats["total"], 10)
+    # A {{Quote|text|[[Character]]}} epigraph with no <blockquote> anywhere
+    # must NOT be mistaken for the entity's own AI-voice body (a real bug
+    # found on Pazuzu/Changeling/Gods/Mantis's live pages) - fall through to
+    # the lead paragraph instead, and don't duplicate it into "description"
+    # since it's already the body.
+    eq = by_title["Epigraph Quote"]
+    check("Epigraph Quote body source", eq["bodySource"], "lead")
+    if "seen things you people" in eq["body"]:
+        fails.append("Epigraph Quote body: character-attributed quote leaked in as AI voice")
+    if "must not be mistaken" not in eq["body"]:
+        fails.append(f"Epigraph Quote body: lead paragraph fallback missing: {eq['body']!r}")
+    check("Epigraph Quote description", eq["description"], None)
+
+    # A quote template explicitly attributed to the System AI is still real
+    # body text - the skip above must not swallow this case - and since the
+    # body came from the template (not the lead paragraph itself), the lead
+    # paragraph belongs in "description".
+    sq = by_title["SystemAI Quote"]
+    check("SystemAI Quote body source", sq["bodySource"], "template")
+    if "quote template path" not in sq["body"]:
+        fails.append(f"SystemAI Quote body: System AI quote template not extracted: {sq['body']!r}")
+    if not sq["description"] or "confirm a System AI attributed" not in sq["description"]:
+        fails.append(f"SystemAI Quote description: lead paragraph missing: {sq['description']!r}")
+
+    check("stats total", stats["total"], 12)
 
     # extract_primary_image() edge cases, tested directly since build_kind()
     # only wires an "image" onto an entry when fetch_images.py's URL cache

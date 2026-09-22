@@ -159,7 +159,11 @@ def extract_quote_block(wikitext: str) -> tuple[str, str]:
             return cleaned, "blockquote"
 
     # 2. A quote template - fallback for the minority of pages with no
-    #    <blockquote> at all.
+    #    <blockquote> at all. Skip it if it's attributed to a named
+    #    character rather than the System AI: that's a book epigraph, not
+    #    the achievement/monster's own flavor text (e.g. Pazuzu's page has
+    #    no <blockquote>, only {{Quote|...|[[Gwendolyn Duet]]}} - accepting
+    #    that unconditionally mislabels her spoken line as AI narration).
     match = re.search(
         r"\{\{\s*(?:quote|Quote|blockquote|AI|System)\s*\|(.+?)\}\}",
         wikitext,
@@ -167,14 +171,15 @@ def extract_quote_block(wikitext: str) -> tuple[str, str]:
     )
     if match:
         body = match.group(1)
-        # Drop a leading named first param (quote = ...) and any trailing
-        # named or positional params (|author=..., |[[Rory]]) - but not a
+        # Drop a leading named first param (quote = ...) - but not a
         # '|' inside a [[wikilink|display]] within the quote text itself.
         body = re.sub(r"^\s*quote\s*=\s*", "", body, flags=re.IGNORECASE)
-        body = _first_positional_param(body)
-        cleaned = strip_markup(body)
-        if len(cleaned) > 40:
-            return cleaned, "template"
+        text_param = _first_positional_param(body)
+        attribution = strip_markup(body[len(text_param):].lstrip("|"))
+        if not attribution or "system ai" in attribution.lower():
+            cleaned = strip_markup(text_param)
+            if len(cleaned) > 40:
+                return cleaned, "template"
 
     # 3. A leading indented block (": " lines) before the first heading.
     head = RE_HEADING.split(wikitext)[0]
@@ -204,6 +209,25 @@ def extract_description(wikitext: str) -> str | None:
             cleaned = strip_markup(wikitext[start:end])
             return cleaned or None
     return None
+
+
+def extract_lead_paragraph(wikitext: str) -> str | None:
+    """The one-line summary sitting between the infobox/quote and the first
+    heading (e.g. "Pazuzu are a half-human, half-scorpion race found in the
+    land quadrant..."). This is what a Fandom link preview shows as the
+    page's description - distinct from both the AI-voice body and the
+    '==Description==' section. strip_markup() strips the leading
+    {{infobox}}/{{Quote}} templates along with everything else, leaving
+    just the plain prose.
+
+    Most achievement pages put their <blockquote> directly in this same
+    pre-heading region (no '==AI Description==' heading wraps it, unlike
+    most monster/race pages) - strip it out first so it isn't duplicated
+    into the description alongside the body that already captured it."""
+    head = RE_HEADING.split(wikitext)[0]
+    head = RE_BLOCKQUOTE.sub("", head)
+    cleaned = strip_markup(head)
+    return cleaned if len(cleaned) > 40 else None
 
 
 def _extract_achievement_box(wikitext: str) -> str | None:
@@ -437,7 +461,13 @@ def build_kind(kind: str, config: dict, verbose: bool, image_urls: dict[str, str
             continue
 
         body, strategy = extract_quote_block(wikitext)
-        description = extract_description(wikitext)
+        # The lead paragraph is only "extra" content when the body came from
+        # somewhere else (a blockquote or quote template). When there was no
+        # blockquote/quote template, extract_quote_block() already fell back
+        # to this same lead paragraph as the body itself (strategy "lead" or
+        # "indent") - re-adding it here would just duplicate the body text.
+        lead = extract_lead_paragraph(wikitext) if strategy in ("blockquote", "template") else None
+        description = "\n\n".join(p for p in (lead, extract_description(wikitext)) if p) or None
         tier, signal, floor = resolve_tier(wikitext, citation_patterns, floor_map)
 
         # Prefer the structured {{Achievement|...|reward=...}} infobox field;

@@ -4,7 +4,7 @@
 | for = Testing the description extractor
 | reward = None
 }}
-'''Wiki Lore''' is a test fixture achievement.{{cite|1|1}}
+'''Wiki Lore''' is a test fixture achievement used to check that the lead paragraph before any heading gets captured too.{{cite|1|1}}
 
 ==AI Description==
 <blockquote><p>'''New achievement! Wiki Lore! You found the part of the page nobody reads!'''</p></blockquote>
