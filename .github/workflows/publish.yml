@@ -19,8 +19,9 @@ on:
         type: string
         default: "60"
   schedule:
-    # Monthly refresh. Runs with include_data off, so a scheduled run only
-    # ever redeploys the shell unless you change the default below.
+    # Monthly refresh - always ships real data (see INCLUDE_DATA below).
+    # A manual run still defaults include_data to off, for testing a deploy
+    # without hitting the live wiki.
     - cron: "0 4 1 * *"
 
 permissions:
@@ -38,6 +39,12 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
+    env:
+      # inputs.include_data only exists on a manual workflow_dispatch run
+      # (where it defaults to false); a scheduled run has no inputs at all,
+      # so it must opt in here instead or every monthly refresh silently
+      # reverts the live site to placeholder demo data.
+      INCLUDE_DATA: ${{ github.event_name == 'schedule' || inputs.include_data == true }}
     steps:
       - uses: actions/checkout@v4
 
@@ -53,7 +60,7 @@ jobs:
 
       # Keeps repeat runs fast and keeps request volume off Fandom.
       - name: Restore scraped wikitext
-        if: inputs.include_data
+        if: env.INCLUDE_DATA == 'true'
         uses: actions/cache@v4
         with:
           path: raw
@@ -61,19 +68,19 @@ jobs:
           restore-keys: wiki-raw-
 
       - name: Scrape the wiki
-        if: inputs.include_data
+        if: env.INCLUDE_DATA == 'true'
         run: python3 tools/fetch_wiki.py
 
       - name: Resolve artwork URLs
-        if: inputs.include_data
+        if: env.INCLUDE_DATA == 'true'
         run: python3 tools/fetch_images.py
 
       - name: Build the dataset
-        if: inputs.include_data
+        if: env.INCLUDE_DATA == 'true'
         run: python3 tools/build_dataset.py --report | tee report.txt
 
       - name: Check the dataset is usable before deploying it
-        if: inputs.include_data
+        if: env.INCLUDE_DATA == 'true'
         env:
           MIN: ${{ inputs.min_entries }}
         run: |
@@ -119,7 +126,7 @@ jobs:
           mkdir -p _site
           cp -r web/* _site/
           rm -f _site/test_picker.js
-          if [ "${{ inputs.include_data }}" = "true" ] && [ -f data/entries.json ]; then
+          if [ "${{ env.INCLUDE_DATA }}" = "true" ] && [ -f data/entries.json ]; then
             cp data/entries.json _site/entries.json
             echo "### Deployed with real data" >> $GITHUB_STEP_SUMMARY
             echo "This Pages site is public. See docs/deploy.md." >> $GITHUB_STEP_SUMMARY
@@ -129,7 +136,7 @@ jobs:
           fi
 
       - name: Attach the dataset for download
-        if: inputs.include_data
+        if: env.INCLUDE_DATA == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: entries-json

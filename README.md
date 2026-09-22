@@ -30,7 +30,7 @@ Screen" (Safari on iOS, Chrome on Android).
 | 3. **Web app (PWA)** | **Built and deployed**, picker tested, live with real data. |
 | 4. Notifications | See `docs/deploy.md` — the web has no local scheduler |
 | 5. Deploy | **Live** on GitHub Pages, public, with real data. |
-| 6. Refresh automation | Workflow runs monthly, but ships placeholder data on that schedule by default — a real refresh needs a manual **Actions → publish → Run workflow** with `include_data` ticked. |
+| 6. Refresh automation | **Done.** Workflow runs monthly and ships real data automatically. A manual **Actions → publish → Run workflow** still defaults to placeholder data unless `include_data` is ticked (handy for testing a deploy without hitting the live wiki). |
 
 The web app replaced the Flutter plan. Same install-to-home-screen result on
 both phones, no app stores, no $99/yr Apple fee, one codebase. The only thing
