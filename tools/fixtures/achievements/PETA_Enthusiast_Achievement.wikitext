@@ -1,0 +1,14 @@
+{{Achievement
+|image = New_Achievement.png
+|floor = 6
+}}
+'''PETA Enthusiast''' is an [[Achievement]] awarded for removing the aggro of an opponent.
+
+{{Quote|New achievement! PETA Enthusiast!
+
+You somehow managed to remove the hostility of an aggravated, non-sapient enemy. That enemy then fought against other enemies to your benefit. The ghost of [https://en.wikipedia.org/wiki/Steve_Irwin Steve Irwin] smiles down upon you.
+
+Reward: The ghost of Steve Irwin smiles upon you|author=[[System AI]]}}
+
+[[Category:Achievements]]
+[[Category:Floor 6 Achievements]]

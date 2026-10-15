@@ -43,7 +43,14 @@ def run():
     check("Mystery tier", mp["spoilerTier"], None)
     check("Mystery signal", mp["tierSignal"], "none")
 
-    check("stats total", stats["total"], 3)
+    # External link markup [url text] must become plain text, not leak brackets/URLs.
+    pe = by_title["PETA Enthusiast"]
+    if "[http" in pe["body"] or "en.wikipedia.org" in pe["body"]:
+        fails.append(f"PETA Enthusiast body leaked external link markup: {pe['body']!r}")
+    if "Steve Irwin" not in pe["body"]:
+        fails.append(f"PETA Enthusiast body lost external link text: {pe['body']!r}")
+
+    check("stats total", stats["total"], 4)
 
     for e in entries:
         if not e["sourceUrl"].startswith("https://"):

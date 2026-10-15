@@ -41,6 +41,7 @@ RE_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
 RE_FILE = re.compile(r"\[\[(?:File|Image):[^\]]*\]\]", re.IGNORECASE)
 RE_CATEGORY = re.compile(r"\[\[Category:([^\]|]+)(?:\|[^\]]*)?\]\]", re.IGNORECASE)
 RE_LINK = re.compile(r"\[\[(?:[^\]|]*\|)?([^\]|]+)\]\]")
+RE_EXTLINK = re.compile(r"\[(https?://\S+)(?:\s+([^\]]+))?\]")
 RE_BOLD_ITALIC = re.compile(r"'{2,5}")
 RE_TEMPLATE = re.compile(r"\{\{[^{}]*\}\}")
 RE_HEADING = re.compile(r"^\s*={2,}\s*(.+?)\s*={2,}\s*$", re.MULTILINE)
@@ -64,6 +65,7 @@ def strip_markup(text: str) -> str:
             break
         text = new
     text = RE_LINK.sub(r"\1", text)
+    text = RE_EXTLINK.sub(lambda m: m.group(2) or m.group(1), text)
     text = RE_BOLD_ITALIC.sub("", text)
     text = re.sub(r"^\s*[*#:;]+\s?", "", text, flags=re.MULTILINE)
     text = RE_WS.sub(" ", text)
