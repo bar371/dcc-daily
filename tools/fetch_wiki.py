@@ -40,11 +40,22 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = REPO_ROOT / "raw"
 
 # Which wiki categories feed which entry kind.
+#
+# The "gods" category names below are guesses, not confirmed against the
+# live wiki - category_members() just returns 0 pages for a name that
+# doesn't exist, so a wrong guess here is harmless. Run with
+# `--only gods --report` and check what actually got cached; fix the names
+# below once you know the real one(s).
 SOURCES = {
     "achievements": ["Category:Achievements"],
     "monsters": [
         "Category:Mob Types",
         "Category:Bosses",
+    ],
+    "gods": [
+        "Category:Gods",
+        "Category:Deities",
+        "Category:Pantheon",
     ],
 }
 

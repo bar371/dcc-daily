@@ -10,6 +10,7 @@ import build_dataset as bd  # noqa: E402
 def run():
     tmp = Path(tempfile.mkdtemp())
     shutil.copytree(ROOT / "tools" / "fixtures" / "achievements", tmp / "achievements")
+    shutil.copytree(ROOT / "tools" / "fixtures" / "gods", tmp / "gods")
     bd.RAW_DIR = tmp
     config = json.loads((ROOT / "config" / "books.json").read_text())
     entries, stats = bd.build_kind("achievements", config, verbose=False)
@@ -51,6 +52,20 @@ def run():
         fails.append(f"PETA Enthusiast body lost external link text: {pe['body']!r}")
 
     check("stats total", stats["total"], 4)
+
+    # "gods" is a separate kind from "achievements" - build_kind() must
+    # process it the same way (citation/floor/quote-block extraction all work
+    # the same regardless of kind).
+    god_entries, god_stats = bd.build_kind("gods", config, verbose=False)
+    check("gods stats total", god_stats["total"], 1)
+    emberus = god_entries[0]
+    check("Emberus kind", emberus["kind"], "gods")
+    check("Emberus tier", emberus["spoilerTier"], 4)
+    check("Emberus signal", emberus["tierSignal"], "citation")
+    if "pledged yourself to Emberus" not in emberus["body"]:
+        fails.append(f"Emberus body missing System AI text: {emberus['body']!r}")
+    if not emberus["reward"] or "fire resistance" not in emberus["reward"]:
+        fails.append(f"Emberus reward not extracted: {emberus['reward']!r}")
 
     for e in entries:
         if not e["sourceUrl"].startswith("https://"):

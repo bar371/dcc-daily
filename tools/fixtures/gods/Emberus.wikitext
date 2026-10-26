@@ -1,0 +1,11 @@
+{{God
+|image = Emberus.png
+}}
+'''Emberus''' is a [[God]] of fire and ash worshipped on Floor 6.<ref>Dinniman, Matt. ''The Gate of the Feral Gods'' (Chapter 4)</ref>
+
+{{Quote|You have pledged yourself to Emberus, Lord of Cinders. Your flesh is ash. Your will is fire.
+
+Reward: +5% fire resistance|author=[[System AI]]}}
+
+[[Category:Gods]]
+[[Category:Floor 6 Achievements]]

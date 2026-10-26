@@ -232,7 +232,7 @@ def main() -> int:
     max_tier = max(b["index"] for b in config["books"])
 
     all_entries: list[dict] = []
-    for kind in ("achievements", "monsters"):
+    for kind in ("achievements", "monsters", "gods"):
         entries, stats = build_kind(kind, config, args.report)
         if stats:
             print(
