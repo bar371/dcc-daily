@@ -46,6 +46,8 @@ SOURCES = {
         "Category:Mob Types",
         "Category:Bosses",
     ],
+    # Not "Category:God Sponsors" - those are characters (Odette, Maestro...).
+    "gods": ["Category:Deities"],
 }
 
 

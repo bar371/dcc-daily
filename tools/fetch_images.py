@@ -33,7 +33,7 @@ CACHE_PATH = RAW_DIR / "image_urls.json"
 
 def referenced_filenames() -> list[str]:
     names: set[str] = set()
-    for kind in ("achievements", "monsters"):
+    for kind in ("achievements", "monsters", "gods"):
         for path in sorted((RAW_DIR / kind).glob("*.wikitext")):
             image = bd.extract_primary_image(path.read_text(encoding="utf-8"))
             if image:

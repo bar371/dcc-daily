@@ -10,6 +10,7 @@ import build_dataset as bd  # noqa: E402
 def run():
     tmp = Path(tempfile.mkdtemp())
     shutil.copytree(ROOT / "tools" / "fixtures" / "achievements", tmp / "achievements")
+    shutil.copytree(ROOT / "tools" / "fixtures" / "gods", tmp / "gods")
     bd.RAW_DIR = tmp
     config = json.loads((ROOT / "config" / "books.json").read_text())
     entries, stats = bd.build_kind("achievements", config, verbose=False, image_urls={})
@@ -50,12 +51,37 @@ def run():
     check("Cautious Reveal tier", cr["spoilerTier"], 5)
     check("Cautious Reveal signal", cr["tierSignal"], "spoilh")
 
-    # Infobox closes on the same line as its last field (no "\n}}"), and
-    # {{PAGENAME}} is nested inside an earlier field - regression test for a
-    # bug where the reward extractor either missed the box entirely (falling
-    # back to messy AI-voice prose) or stopped at PAGENAME's own "}}".
+    # The System AI's own "Reward:" line beats the infobox's editor summary
+    # ("Royalties (minus taxes)") whenever the quote has one.
     dp = by_title["Dungeonpreneur"]
-    check("Dungeonpreneur reward", dp["reward"], "Royalties (minus taxes)")
+    if not dp["reward"] or not dp["reward"].startswith("For every kill made with this device"):
+        fails.append(f"Dungeonpreneur reward: AI-voice line should beat infobox: {dp['reward']!r}")
+    # Box closes on the same line as its last field, with {{PAGENAME}} nested
+    # earlier - the brace-depth walk must still find the field.
+    dp_wikitext = (tmp / "achievements" / "Dungeonpreneur_Achievement.wikitext").read_text()
+    check("Dungeonpreneur infobox reward", bd.extract_infobox_reward(dp_wikitext), "Royalties (minus taxes)")
+
+    # Real page: infobox says "Fight", the AI says the actual joke.
+    dm = by_title["You've Inflicted Damage on a Mob"]
+    check("Inflicted Damage reward", dm["reward"], "It’s probably going to hit back.")
+    if "probably" in dm["body"]:
+        fails.append(f"Inflicted Damage body: reward line left in body: {dm['body']!r}")
+
+    # Real page: a reward spanning several paragraphs keeps its punchline
+    # with it instead of stranding "Just kidding..." at the end of the body.
+    ap = by_title["Apex Predator"]
+    check("Apex Predator reward", ap["reward"], "Nothing!\n...\nJust kidding. You have received a Celestial Predator Box.")
+    if "Just kidding" in ap["body"]:
+        fails.append(f"Apex Predator body: reward punchline stranded in body: {ap['body'][-80:]!r}")
+
+    # Real page: [url text] external links reduce to their text.
+    pe = by_title["PETA Enthusiast"]
+    if "[http" in pe["body"] or "wikipedia.org" in pe["body"] or "Steve Irwin smiles" not in pe["body"]:
+        fails.append(f"PETA Enthusiast body: external link not reduced to its text: {pe['body']!r}")
+    check("PETA Enthusiast reward", pe["reward"], "I SAID THE GHOST OF STEVE IRWIN SMILES DOWN UPON YOU.")
+    # '''{{PAGENAME}}''' must keep the sentence's subject, not delete it.
+    if not pe["description"] or not pe["description"].startswith("The PETA Enthusiast is an"):
+        fails.append(f"PETA Enthusiast description lost its subject: {pe['description']!r}")
 
     # Blank "|reward=" field must fall through to the prose "Reward:" line,
     # not swallow the next infobox field's value - \s* after "=" matches
@@ -131,7 +157,19 @@ def run():
     if not sq["description"] or "confirm a System AI attributed" not in sq["description"]:
         fails.append(f"SystemAI Quote description: lead paragraph missing: {sq['description']!r}")
 
-    check("stats total", stats["total"], 12)
+    check("stats total", stats["total"], 15)
+
+    gods, god_stats = bd.build_kind("gods", config, verbose=False, image_urls={})
+    god = {e["title"]: e for e in gods}
+    # The category's overview page isn't a god.
+    check("gods titles", sorted(god), ["Dodola", "Khepri"])
+    check("Dodola body", god["Dodola"]["body"], "Dodola is a god normally sponsored by Huanxin Jinx.")
+    check("Dodola tier", god["Dodola"]["spoilerTier"], 6)
+    check("Khepri body source", god["Khepri"]["bodySource"], "blockquote")
+    if not god["Khepri"]["body"].startswith("God of Rebirth and the Sunrise. Khepri! Level 250."):
+        fails.append(f"Khepri body: System AI text missing: {god['Khepri']['body'][:80]!r}")
+    if any(e["kind"] != "gods" for e in gods):
+        fails.append("gods entries mislabeled")
 
     # extract_primary_image() edge cases, tested directly since build_kind()
     # only wires an "image" onto an entry when fetch_images.py's URL cache

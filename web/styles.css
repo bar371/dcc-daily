@@ -135,6 +135,7 @@ body {
   border-top: 1px dashed var(--edge);
   background: #00000029;
   color: var(--gold);
+  white-space: pre-wrap;
 }
 .reward b { font-family: var(--display); font-weight: 400; letter-spacing: .02em; }
 

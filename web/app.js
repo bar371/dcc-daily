@@ -96,7 +96,10 @@ function render() {
 
   const banner = document.createElement("p");
   banner.className = "banner";
-  banner.textContent = entry.kind === "monsters" ? "MOB IDENTIFIED" : "NEW ACHIEVEMENT!";
+  banner.textContent =
+    entry.kind === "monsters" ? "MOB IDENTIFIED" :
+    entry.kind === "gods" ? "GOD ENCOUNTERED" :
+    "NEW ACHIEVEMENT!";
 
   const name = document.createElement("h1");
   name.className = "name";

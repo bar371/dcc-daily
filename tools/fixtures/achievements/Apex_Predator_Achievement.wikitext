@@ -1,0 +1,34 @@
+{{Quote | Finally, I thought. Fucking finally.<ref>{{ref|6|2}} (pp. 30). Kindle Edition.</ref>}} 
+{{Achievement
+  | title1 = Apex Predator
+  | floor = [[Sixth Floor]]
+  | for = Fulfilling his promise
+  | reward =  Celestial [[Predator Box]]
+}}
+
+'''Apex Predator''' is an [[Achievement]] awarded to Carl for killing the very last hunter on the [[Sixth Floor]], thus fulfilling the promise he made to the hunters at the end of the [[Fifth Floor]].{{cite|4|34}}{{cite|6|2}}
+
+== AI Description ==
+
+<blockquote><p>'''New Achievement. Apex Predator. '''</p>
+<p>'''Holy shit.'''</p> 
+<p>'''They’re dead.'''</p> 
+<p>'''All of them.'''</p> 
+<p>'''Every. Last. One.'''</p> 
+<p>'''Not only did you kill more hunters than everyone else, but you killed the very last one. One could fill a very stinky swimming pool with the blood you spilled on the Hunting Grounds.'''</p> 
+<p>'''You have become a very scary dude. Maybe I should be calling ''you'' daddy instead of the other way around.'''</p> 
+<p>'''Reward:'' Nothing!'''</p> 
+<p>'''...'''</p>  
+<p>'''Just kidding. You have received a Celestial [[Predator Box]].'''<ref>{{ref|6|2}} (pp. 30-31). Kindle Edition.</ref></p></blockquote>
+
+==Story==
+[[Carl]] receives this achievement on the [[Sixth Floor]] after killing the last hunter. He sees the achievement and opens his reward on the [[Eighth Floor]].
+
+The Celestial [[Predator Box]] awards him with the [[Scavenger's Daughter Upgrade Patch]].
+
+==References==
+<references />
+
+[[Category:Achievements]]
+[[Category:Floor 6]]
+[[Category:Floor 8]]

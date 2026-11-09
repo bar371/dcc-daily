@@ -46,6 +46,7 @@ RE_FILE = re.compile(r"\[\[(?:File|Image):[^\]]*\]\]", re.IGNORECASE)
 RE_GALLERY = re.compile(r"<gallery\b.*?</gallery>", re.DOTALL | re.IGNORECASE)
 RE_CATEGORY = re.compile(r"\[\[Category:([^\]|]+)(?:\|[^\]]*)?\]\]", re.IGNORECASE)
 RE_LINK = re.compile(r"\[\[(?:[^\]|]*\|)?([^\]|]+)\]\]")
+RE_EXTLINK = re.compile(r"\[(https?://\S+)(?:\s+([^\]]+))?\]")
 RE_BOLD_ITALIC = re.compile(r"'{2,}")
 RE_REDIRECT = re.compile(r"^\s*#REDIRECT\b", re.IGNORECASE)
 RE_TEMPLATE = re.compile(r"\{\{[^{}]*\}\}")
@@ -54,11 +55,22 @@ RE_HEADING = re.compile(r"^\s*={2,}\s*(.+?)\s*={2,}\s*$", re.MULTILINE)
 RE_FLOOR_INDEX_TITLE = re.compile(r"^Floor\s+\d+\s+Achievements$", re.IGNORECASE)
 # The generic "what is an Achievement/Boss" mechanic-overview page for each
 # category tags itself into its own category, so the crawl picks it up
-# alongside real entries. It isn't one - drop it by exact title.
+# alongside real entries. It isn't one - drop it by exact title. Deities
+# also holds lore/place/mechanic pages that aren't a god.
 META_PAGE_TITLES = {
     "achievements": {"Achievement", "Achievements"},
     "monsters": {"Boss", "Bosses", "Mob Types", "Monster", "Monsters"},
+    "gods": {
+        "Gods",
+        "Diety Family Tree",
+        "Scavanger Myth",
+        "Smite",
+        "Emberus High Temple of the Ending Sun",
+    },
 }
+# Pages open with '''{{PAGENAME}}''' is a..., and strip_markup() deletes
+# templates, so the sentence would lose its subject.
+RE_PAGENAME = re.compile(r"\{\{\s*PAGENAME\s*\}\}", re.IGNORECASE)
 # Real pages tag a plain [[Category:Floor N]] - never the "Floor N Achievements"
 # form the fixtures originally guessed at. Keep this narrow (bracketed category
 # syntax only) so prose like "he arrived on Floor 3" can't false-positive.
@@ -107,6 +119,7 @@ def strip_markup(text: str) -> str:
             break
         text = new
     text = RE_LINK.sub(r"\1", text)
+    text = RE_EXTLINK.sub(lambda m: m.group(2) or m.group(1), text)
     text = RE_BOLD_ITALIC.sub("", text)
     text = re.sub(r"^\s*[*#:;]+\s?", "", text, flags=re.MULTILINE)
     # Inline HTML that survives inside a <blockquote>/{{quote}} body: <br>
@@ -460,27 +473,37 @@ def build_kind(kind: str, config: dict, verbose: bool, image_urls: dict[str, str
         if RE_REDIRECT.match(wikitext):
             continue
 
-        body, strategy = extract_quote_block(wikitext)
+        # Display text only: resolve_tier() keeps the raw wikitext so a title
+        # containing a book name can't pose as a citation.
+        text = RE_PAGENAME.sub(lambda _: clean_title(raw_title), wikitext)
+        body, strategy = extract_quote_block(text)
         # The lead paragraph is only "extra" content when the body came from
         # somewhere else (a blockquote or quote template). When there was no
         # blockquote/quote template, extract_quote_block() already fell back
         # to this same lead paragraph as the body itself (strategy "lead" or
         # "indent") - re-adding it here would just duplicate the body text.
-        lead = extract_lead_paragraph(wikitext) if strategy in ("blockquote", "template") else None
-        description = "\n\n".join(p for p in (lead, extract_description(wikitext)) if p) or None
+        lead = extract_lead_paragraph(text) if strategy in ("blockquote", "template") else None
+        description = "\n\n".join(p for p in (lead, extract_description(text)) if p) or None
         tier, signal, floor = resolve_tier(wikitext, citation_patterns, floor_map)
 
-        # Prefer the structured {{Achievement|...|reward=...}} infobox field;
-        # fall back to scraping a "Reward:" line out of the AI-voice prose,
-        # which is joke-y and less reliable ("Reward: Nothing! ...Just kidding").
-        reward = extract_infobox_reward(wikitext)
-        reward_match = RE_REWARD.search(body) or RE_REWARD.search(strip_markup(wikitext))
-        if not reward and reward_match:
-            reward = reward_match.group(1).strip()
-        if reward_match:
-            # Drop the whole "Reward: ..." line from the body so the app can
-            # style it separately instead of printing it twice.
-            body = RE_REWARD.sub("", body).strip()
+        # The System AI's own "Reward:" line is the verbatim book text and beats
+        # the infobox field, which is a wiki editor's summary of it - e.g.
+        # "It's probably going to hit back." vs. the infobox's "Fight".
+        body_reward = RE_REWARD.search(body)
+        if body_reward:
+            # The reward is the message's closing beat, so whatever follows its
+            # first line belongs with it ("Reward: Nothing!" ... "Just kidding.
+            # You have received a Celestial Predator Box.", admin notes).
+            reward = (body_reward.group(1) + body[body_reward.end():]).strip()
+            body = body[: body_reward.start()].strip()
+            # A few wiki pages carry a stray closing quote with no opener.
+            if reward.endswith("”") and "“" not in reward:
+                reward = reward[:-1].rstrip()
+        else:
+            reward = extract_infobox_reward(wikitext)
+            if not reward:
+                page_reward = RE_REWARD.search(strip_markup(text))
+                reward = page_reward.group(1).strip() if page_reward else None
 
         image = None
         found_image = extract_primary_image(wikitext)
@@ -535,7 +558,7 @@ def main() -> int:
 
     image_urls = load_image_urls()
     all_entries: list[dict] = []
-    for kind in ("achievements", "monsters"):
+    for kind in ("achievements", "monsters", "gods"):
         entries, stats = build_kind(kind, config, args.report, image_urls)
         if stats:
             print(
