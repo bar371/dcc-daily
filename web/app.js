@@ -115,6 +115,8 @@ function render() {
     const figure = document.createElement("figure");
     figure.className = "art";
     const img = document.createElement("img");
+    // Fandom's image server 404s any request whose Referer is another site.
+    img.referrerPolicy = "no-referrer";
     img.src = entry.image.url;
     img.alt = "";
     img.loading = "lazy";
@@ -139,9 +141,11 @@ function render() {
   card.append(body);
 
   if (entry.description) {
-    const lore = document.createElement("p");
+    const lore = document.createElement("details");
     lore.className = "lore";
-    lore.textContent = entry.description;
+    const summary = document.createElement("summary");
+    summary.textContent = "From the wiki";
+    lore.append(summary, text(document.createElement("p"), entry.description));
     card.append(lore);
   }
 
