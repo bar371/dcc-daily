@@ -135,6 +135,17 @@ jobs:
             echo "Re-run with \`include_data\` ticked to ship the real dataset." >> $GITHUB_STEP_SUMMARY
           fi
 
+      # Fandom 404s card art requested from another site, which only a real
+      # browser load of the assembled site can see.
+      - name: Check card artwork loads in a browser
+        if: env.INCLUDE_DATA == 'true'
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --directory _site &
+          sleep 1
+          node tools/smoke_images.js http://127.0.0.1:8000/ _site/entries.json
+
       - name: Attach the dataset for download
         if: env.INCLUDE_DATA == 'true'
         uses: actions/upload-artifact@v4
