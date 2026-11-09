@@ -122,11 +122,21 @@ body {
 }
 
 .lore {
-  margin: 0;
-  padding: 0.9rem 1.1rem;
   border-top: 1px dashed var(--edge);
   color: var(--dim);
   font-size: 0.92rem;
+}
+.lore > summary {
+  cursor: pointer;
+  padding: 0.7rem 1.1rem;
+  font-family: var(--display);
+  letter-spacing: 0.03em;
+}
+.lore > summary::marker { color: var(--hot); }
+.lore > p {
+  margin: 0;
+  padding: 0 1.1rem 0.9rem;
+  white-space: pre-wrap;
 }
 
 .reward {
