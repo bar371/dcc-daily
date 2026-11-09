@@ -109,7 +109,41 @@ function render() {
   body.className = "body-text";
   body.textContent = entry.body;
 
-  card.append(banner, name, body);
+  card.append(banner, name);
+
+  if (entry.image) {
+    const figure = document.createElement("figure");
+    figure.className = "art";
+    const img = document.createElement("img");
+    img.src = entry.image.url;
+    img.alt = "";
+    img.loading = "lazy";
+    figure.append(img);
+    if (entry.image.credit) {
+      const cap = document.createElement("figcaption");
+      if (entry.image.wikiPage) {
+        const link = document.createElement("a");
+        link.href = entry.image.wikiPage;
+        link.rel = "noopener";
+        link.target = "_blank";
+        link.textContent = entry.image.credit;
+        cap.append(link);
+      } else {
+        cap.textContent = entry.image.credit;
+      }
+      figure.append(cap);
+    }
+    card.append(figure);
+  }
+
+  card.append(body);
+
+  if (entry.description) {
+    const lore = document.createElement("p");
+    lore.className = "lore";
+    lore.textContent = entry.description;
+    card.append(lore);
+  }
 
   if (entry.reward) {
     const reward = document.createElement("p");
@@ -123,8 +157,8 @@ function render() {
   const meta = document.createElement("p");
   meta.className = "meta";
   const book = state.dataset.books.find((b) => b.index === entry.spoilerTier);
-  meta.append(document.createTextNode(book ? book.short : `Book ${entry.spoilerTier}`));
-  if (entry.floor != null) meta.append(document.createTextNode(`Floor ${entry.floor}`));
+  meta.append(text(document.createElement("span"), book ? book.short : `Book ${entry.spoilerTier}`));
+  if (entry.floor != null) meta.append(text(document.createElement("span"), `Floor ${entry.floor}`));
   if (entry.sourceUrl) {
     const link = document.createElement("a");
     link.href = entry.sourceUrl;

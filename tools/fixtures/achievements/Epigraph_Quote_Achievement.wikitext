@@ -1,0 +1,15 @@
+{{Achievement
+| title1 = Epigraph Quote
+| floor = [[First Floor]]
+| for = Testing that a character-attributed quote isn't mistaken for AI voice
+| reward = None
+}}
+{{Quote|I have seen things you people wouldn't believe.|[[Some Narrator]]}}
+
+'''Epigraph Quote''' is a test fixture achievement demonstrating a character-attributed epigraph that must not be mistaken for the System AI's own voice.{{cite|1|1}}
+
+==Trivia==
+Nothing else here.
+
+[[Category:Achievements]]
+[[Category:Floor 1]]

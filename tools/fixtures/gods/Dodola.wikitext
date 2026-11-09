@@ -1,0 +1,51 @@
+{{SpoilH | 6}}
+{{DISPLAYTITLE:{{PAGENAME}}}}
+{{Character info
+| title1 = {{PAGENAME}}
+| image1 = 
+|caption-image1=
+| aliases = 
+| origin = 
+| occupation = 
+| first_appearance = Book 6, Prologue
+| species = 
+| class = 
+| age = 
+| height = 
+| weight = 
+| hair = 
+| eyes = 
+| level = 
+| highest_stat = 
+| skills = 
+| spells = 
+| weapon = 
+| titles = 
+| party = 
+| guild = 
+| organizations = 
+| patrons = 
+| gods = 
+| allies = 
+| enemies = 
+| status = 
+| conditions = 
+}}<!--{{Quote | quote = <small></small>}}-->
+
+'''{{PAGENAME}}'''  is a [[Gods|god]] normally sponsored by [[Huanxin Jinx]].
+
+<!--== AI Description ==
+<blockquote><p>
+</p></blockquote>-->
+
+<!--== Description ==-->
+<!--== Appearance ==-->
+<!--==Story==-->
+
+==References==
+<references />
+
+{{Navbox Char}}
+[[Category:NPCs]]
+[[Category:Characters]]
+[[Category:Deities]]

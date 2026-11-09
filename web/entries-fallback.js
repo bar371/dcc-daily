@@ -1,7 +1,7 @@
 /* Placeholder data so the page has something to show before you run the
    scraper. Every line below is written from scratch for this demo - none of
    it is text from the books or the wiki, deliberately, because that text is
-   Matt Dinniman's copyright (see NOTICE.md).
+   Matt Dinniman's copyright.
    Real content arrives as entries.json, which takes precedence over this. */
 window.DCC_FALLBACK = {
   version: 0,

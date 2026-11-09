@@ -1,0 +1,13 @@
+{{Achievement
+| title1 = Cautious Reveal
+| floor = [[Third Floor]]
+| for = Testing signal disagreement
+| reward = Silver Loot Box
+}}
+'''Cautious Reveal''' is an [[Achievement]] whose only inline citation is early, but the wiki's own spoiler header is more cautious.{{cite|2|9}}
+
+{{SpoilH|5}}
+<blockquote><p>'''You should not see this until book five.'''</p></blockquote>
+
+[[Category:Achievements]]
+[[Category:Floor 2]]

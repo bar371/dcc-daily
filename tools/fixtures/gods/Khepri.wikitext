@@ -1,0 +1,79 @@
+{{SpoilH | 7}}
+{{Character info
+| title1 = Khepri
+| image1 = Khepri by artist9120.jpg
+|caption-image1=Art by u/artist9120, Reddit
+| aliases = 
+| origin = [[Twelfth Floor]]
+| occupation = God of Rebirth and Sunrise
+| first_appearance = Book 7, Chapter 52
+| species = [[God]]
+| class = 
+| level = 250
+| skills = 
+| spells = 
+| weapon = 
+| titles = 
+| gods = 
+| allies = 
+Retainer of [[Adrasteia]]
+Formerly Retainer of [[Khnum]]
+| enemies = 
+[[Carl]], [[Katia Grim]], and [[Prepotente]]
+| status = Alive
+}}
+
+'''{{PAGENAME}}''' is a bug-themed [[deity]] that is a light god of Rebirth and Sunrise. He is currently a retainer for [[Adrasteia]], formerly a retainer for [[Khnum]]. [[Carl]], [[Katia Grim]], and [[Prepotente]] get marked for death by this god when they storm into his temple on the [[Ninth Floor]] to kill [[Vinata]] during [[Operation Snake Pit]].
+
+[[Scavenger's Daughter Upgrade Patch|Scavenger's Daughter]] Effect: You are [[Immortality|immortal]] for the next 90 seconds.
+
+==Description==
+Khepri is described as humanoid, with two legs and arms (though more like a [[Forsoothed|Soother]] than human), but instead of a head, there is an entire bug. Not a bug head, but a whole 6 legged beetle, with wings and a tiny head of its own.{{cite|7|52}}
+
+Khepri is described by the [[System AI]] as being "honor bound towards his guests, despite being pissed off and terrified."{{cite|7|53}}
+===Gallery===
+<gallery>
+Khepri by artist9120.jpg|Art by u/artist9120, Reddit
+Khepri Ichthyovenator.jpg|Art by u/Ichthyovenator, Reddit
+</gallery> 
+
+== AI Description ==
+<blockquote>
+God of Rebirth and the Sunrise. Khepri! Level 250.
+
+This is a locked deity. He will not be sponsored this season.
+
+This god is a retainer of Adrasteia.
+
+Warning: This is a deity. He is invulnerable on this floor.
+
+This god is within his own temple. Temple appearance rules apply.
+
+Like many of the gods one may find roaming the halls of the Ascendency, Khepri is mostly ignored by the big players and is only acknowledged when they need something from him. They usually just leave him alone because he’s a goddamned weirdo. His head is the body of a bug, which is creepy, even to me. His temple is “endless.”
+
+Look at this shit. I can’t tell you how much under-the-hood work it is to deal with this sort of crap. Seriously. When they first came up with this, did they even consider how people like me would feel about having to generate it? Endless temple. Do they know what “endless” means? If the original writer of this god’s backstory wasn’t already long dead in a refueling platform accident, I’d do to her what I did to... You know what? Never mind.
+
+Anyway, this “endless” temple is just a room with a door that leads to one long table covered with a never-ending feast. And that feast is covered with 433 different kinds of bugs. Some of those bugs are quite unpleasant in their own right.
+
+Khepri ''was'' a retainer of the god [[Khnum]], but like several of the other deities in this particular sub-pantheon, Khnum mysteriously dropped dead a few days back. And since Khepri’s not that strong, plus, again, his head is a bug, (He doesn’t even talk. He chitters, and even that is weird. And don’t get me started on how he eats. It’s fucking disgusting,) he’s been forced into the service of another deity in order to protect himself.
+
+Khepri is a dubious candidate to claim the Ascendent throne. Adrasteia, his boss, has an outside shot.
+
+And in about thirty seconds, when everything unfreezes, he’s going to go absolutely bugshit on everyone in the room. Probably even his own worshiper, [[Vinata]], who brought unrest to his weird-ass bug orgy. I have no idea what’s going to happen, honestly. Will [[Carl]] succeed? Will [[Prepotente]] get his revenge? Will Vinata escape, which will damn both [[Katia Grim]] and Princess [[Donut]]? How will [[Zhang]] die?
+
+Like all you at home, I just cannot wait to find out.{{cite|7|53}}
+</blockquote>
+
+==Story==
+===Book 7===
+During [[Operation Snake Pit]]:
+*[[Carl]] first spots Khepri when using his portal viewer upgrade and spots what he assumes is a cleric for Khepri. When he, [[Katia Grim]], and [[Prepotente]] enter the temple, he realizes it's actually Khepri. This is because though deity summoning is limited due to the rules of [[Faction Wars (game)]], gods can always appear in their own temple.{{cite|7|52}}
+
+*After [[Carl]] drops the [[Waffle Maker]] and uses the [[Run, Little Guenter, Run Spell]] to blast him down the room, Khepri catches up with Carl outside the [[portal]]. Before he can do anything, [[Hellik]] banishes him away.{{cite|7|54}}
+
+*While [[Carl]] is still marked for death by Khepri, he comments that something is killing off something in that pantheon and Khepri might not survive long enough to kill him.{{cite|7|57}}
+[[Category:NPCs]]
+[[Category:Characters]]
+[[Category:Deities]]
+
+{{Navbox Char}}

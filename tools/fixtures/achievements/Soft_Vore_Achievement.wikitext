@@ -1,7 +1,12 @@
+{{Achievement
+| title1 = Soft Vore
+| floor = [[Sixth Floor]]
+| for = Being swallowed whole and surviving
+| reward = Gold Gullet Box
+}}
 '''Soft Vore''' is an [[Achievement]] awarded for being swallowed whole and surviving.
 
-: You got eaten by a monster much bigger than yourself, and you managed to get out without even getting chewed a little bit.
-: Reward: You've received a Gold Gullet Box!
+<blockquote><p>'''You got eaten by a monster much bigger than yourself, and you managed to get out without even getting chewed a little bit.'''</p></blockquote>
 
 [[Category:Achievements]]
-[[Category:Floor 6 Achievements]]
+[[Category:Floor 6]]

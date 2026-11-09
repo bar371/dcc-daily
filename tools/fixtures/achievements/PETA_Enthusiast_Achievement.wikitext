@@ -1,14 +1,23 @@
+{{DISPLAYTITLE:{{PAGENAME}}}}
 {{Achievement
-|image = New_Achievement.png
-|floor = 6
+|title1= {{PAGENAME}}
+|floor= [[Second Floor]]
+|for=Feeding the [[Danger Dingo]]s outside the [[Ralph]] boss battle
+|reward= The ghost of Steve Irwin smiles upon you
+|image1=
 }}
-'''PETA Enthusiast''' is an [[Achievement]] awarded for removing the aggro of an opponent.
 
-{{Quote|New achievement! PETA Enthusiast!
+The  '''{{PAGENAME}}''' is an [[achievement]] awarded for removing the aggro of an opponent. 
+== AI Description ==
+<blockquote>
+New achievement! PETA Enthusiast!
 
 You somehow managed to remove the hostility of an aggravated, non-sapient enemy. That enemy then fought against other enemies to your benefit. The ghost of [https://en.wikipedia.org/wiki/Steve_Irwin Steve Irwin] smiles down upon you.
 
-Reward: The ghost of Steve Irwin smiles upon you|author=[[System AI]]}}
+'''Reward:''' I SAID THE GHOST OF STEVE IRWIN SMILES DOWN UPON YOU. {{cite|1|47}}
+</blockquote>
 
+== References ==
+<references />
 [[Category:Achievements]]
-[[Category:Floor 6 Achievements]]
+<!--[[Category:Floor ?]]-->

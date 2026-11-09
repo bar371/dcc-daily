@@ -1,0 +1,18 @@
+{{DISPLAYTITLE:{{PAGENAME}}}}
+{{Achievement
+|title1= {{PAGENAME}}
+|floor= [[Second Floor]]
+|for=
+|reward=
+|image1=
+}}
+
+The '''{{PAGENAME}}''' is an [[achievement]] awarded for discovering a pet [[Reward Room]].
+
+== AI Description ==
+You have discovered a pet reward room.
+
+'''Reward:''' You have a key. It opens only one cage.
+
+[[Category:Achievements]]
+[[Category:Floor 2]]

@@ -1,15 +1,16 @@
 {{Achievement
-|image = New_Achievement.png
-|floor = 1
+| title1 = You Monster!
+| floor = [[First Floor]]
+| for = Killing an infant
+| reward = Bronze Loot Box
 }}
-'''You Monster!''' is an [[Achievement]] awarded when a [[Crawler|crawler]] kills an infant.<ref>Dinniman, Matt. ''Dungeon Crawler Carl'' (Chapter 18) (pp. 142-143). Kindle Edition.</ref>
+'''You Monster!''' is an [[Achievement]] awarded when a [[Crawler|crawler]] kills an infant.{{cite|1|18}}
 
-{{Quote|New achievement! You Monster! You have killed an infant! An infant! Okay, okay. Unless you're a complete psychopath, we know you probably didn't wake up this morning and tell yourself, "Today is the day I'm going to slaughter a child."
-
-Reward: That was your reward. It was also a lie.|author=[[System AI]]}}
+<blockquote><p>'''New achievement! You Monster! You have killed an infant! An infant! Okay, okay. Unless you're a complete psychopath, we know you probably didn't wake up this morning and tell yourself, "Today is the day I'm going to slaughter a child."'''</p>
+<p>'''Reward: Bronze Loot Box.'''<ref>{{ref|1|18}} (pp. 142-143). Kindle Edition.</ref></p></blockquote>
 
 == Trivia ==
-Carl thinks about this achievement the first time he says his mantra.<ref>Dinniman, Matt. ''The Dungeon Anarchist's Cookbook'' (Chapter 8)</ref>
+Carl thinks about this achievement the first time he says his mantra.{{cite|3|8}}
 
 [[Category:Achievements]]
-[[Category:Floor 1 Achievements]]
+[[Category:Floor 1]]

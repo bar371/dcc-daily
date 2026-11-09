@@ -13,7 +13,7 @@ def run():
     shutil.copytree(ROOT / "tools" / "fixtures" / "gods", tmp / "gods")
     bd.RAW_DIR = tmp
     config = json.loads((ROOT / "config" / "books.json").read_text())
-    entries, stats = bd.build_kind("achievements", config, verbose=False)
+    entries, stats = bd.build_kind("achievements", config, verbose=False, image_urls={})
     by_title = {e["title"]: e for e in entries}
     fails = []
 
@@ -21,17 +21,19 @@ def run():
         if got != want:
             fails.append(f"{label}: got {got!r}, want {want!r}")
 
-    # Citation beats floor, and the EARLIEST cited book wins (B1, not B3).
+    # {{cite|N|..}} template citation, and the EARLIEST cited book wins (B1, not B3).
     ym = by_title["You Monster!"]
     check("You Monster tier", ym["spoilerTier"], 1)
     check("You Monster signal", ym["tierSignal"], "citation")
-    check("You Monster body source", ym["bodySource"], "template")
-    if "Dinniman" in ym["body"]:
-        fails.append("You Monster body: citation leaked into body text")
+    check("You Monster body source", ym["bodySource"], "blockquote")
+    if "cite" in ym["body"] or "{{" in ym["body"]:
+        fails.append("You Monster body: template markup leaked into body text")
     if "New achievement!" not in ym["body"]:
         fails.append("You Monster body: System AI text missing")
+    if not ym["reward"] or "Bronze Loot Box" not in ym["reward"]:
+        fails.append(f"You Monster reward not extracted from infobox: {ym['reward']!r}")
 
-    # No citation -> fall back to Floor 6 -> Book 5.
+    # No citation or SpoilH -> fall back to Floor 6 -> Book 5.
     sv = by_title["Soft Vore"]
     check("Soft Vore tier", sv["spoilerTier"], 5)
     check("Soft Vore signal", sv["tierSignal"], "floor")
@@ -44,28 +46,164 @@ def run():
     check("Mystery tier", mp["spoilerTier"], None)
     check("Mystery signal", mp["tierSignal"], "none")
 
-    # External link markup [url text] must become plain text, not leak brackets/URLs.
+    # SpoilH (5) disagrees with the lone early citation (2) -> take the safer, higher tier.
+    cr = by_title["Cautious Reveal"]
+    check("Cautious Reveal tier", cr["spoilerTier"], 5)
+    check("Cautious Reveal signal", cr["tierSignal"], "spoilh")
+
+    # The System AI's own "Reward:" line beats the infobox's editor summary
+    # ("Royalties (minus taxes)") whenever the quote has one.
+    dp = by_title["Dungeonpreneur"]
+    if not dp["reward"] or not dp["reward"].startswith("For every kill made with this device"):
+        fails.append(f"Dungeonpreneur reward: AI-voice line should beat infobox: {dp['reward']!r}")
+    # Box closes on the same line as its last field, with {{PAGENAME}} nested
+    # earlier - the brace-depth walk must still find the field.
+    dp_wikitext = (tmp / "achievements" / "Dungeonpreneur_Achievement.wikitext").read_text()
+    check("Dungeonpreneur infobox reward", bd.extract_infobox_reward(dp_wikitext), "Royalties (minus taxes)")
+
+    # Real page: infobox says "Fight", the AI says the actual joke.
+    dm = by_title["You've Inflicted Damage on a Mob"]
+    check("Inflicted Damage reward", dm["reward"], "It’s probably going to hit back.")
+    if "probably" in dm["body"]:
+        fails.append(f"Inflicted Damage body: reward line left in body: {dm['body']!r}")
+
+    # Real page: a reward spanning several paragraphs keeps its punchline
+    # with it instead of stranding "Just kidding..." at the end of the body.
+    ap = by_title["Apex Predator"]
+    check("Apex Predator reward", ap["reward"], "Nothing!\n...\nJust kidding. You have received a Celestial Predator Box.")
+    if "Just kidding" in ap["body"]:
+        fails.append(f"Apex Predator body: reward punchline stranded in body: {ap['body'][-80:]!r}")
+
+    # Real page: [url text] external links reduce to their text.
     pe = by_title["PETA Enthusiast"]
-    if "[http" in pe["body"] or "en.wikipedia.org" in pe["body"]:
-        fails.append(f"PETA Enthusiast body leaked external link markup: {pe['body']!r}")
-    if "Steve Irwin" not in pe["body"]:
-        fails.append(f"PETA Enthusiast body lost external link text: {pe['body']!r}")
+    if "[http" in pe["body"] or "wikipedia.org" in pe["body"] or "Steve Irwin smiles" not in pe["body"]:
+        fails.append(f"PETA Enthusiast body: external link not reduced to its text: {pe['body']!r}")
+    check("PETA Enthusiast reward", pe["reward"], "I SAID THE GHOST OF STEVE IRWIN SMILES DOWN UPON YOU.")
+    # '''{{PAGENAME}}''' must keep the sentence's subject, not delete it.
+    if not pe["description"] or not pe["description"].startswith("The PETA Enthusiast is an"):
+        fails.append(f"PETA Enthusiast description lost its subject: {pe['description']!r}")
 
-    check("stats total", stats["total"], 4)
+    # Blank "|reward=" field must fall through to the prose "Reward:" line,
+    # not swallow the next infobox field's value - \s* after "=" matches
+    # newlines, so an earlier version of the regex read "|image1=" instead.
+    mg = by_title["Menagerie"]
+    if not mg["reward"] or "|" in mg["reward"] or "image1" in mg["reward"]:
+        fails.append(f"Menagerie reward leaked infobox syntax: {mg['reward']!r}")
+    check("Menagerie reward", mg["reward"], "You have a key. It opens only one cage.")
 
-    # "gods" is a separate kind from "achievements" - build_kind() must
-    # process it the same way (citation/floor/quote-block extraction all work
-    # the same regardless of kind).
-    god_entries, god_stats = bd.build_kind("gods", config, verbose=False)
-    check("gods stats total", god_stats["total"], 1)
-    emberus = god_entries[0]
-    check("Emberus kind", emberus["kind"], "gods")
-    check("Emberus tier", emberus["spoilerTier"], 4)
-    check("Emberus signal", emberus["tierSignal"], "citation")
-    if "pledged yourself to Emberus" not in emberus["body"]:
-        fails.append(f"Emberus body missing System AI text: {emberus['body']!r}")
-    if not emberus["reward"] or "fire resistance" not in emberus["reward"]:
-        fails.append(f"Emberus reward not extracted: {emberus['reward']!r}")
+    # A bare infobox placeholder ("None", "Nothing", ...) isn't a real reward
+    # - fall through to the AI-voice prose, which has the actual joke text.
+    pr = by_title["Placeholder Reward"]
+    check("Placeholder Reward reward", pr["reward"], "Well, if there's a heaven, maybe they'll let you in. Because you about to meet your maker.")
+
+    # Book 1's alias ("Dungeon Crawler Carl") is a literal substring of every
+    # other book's full bibliographic subtitle ("...: Dungeon Crawler Carl
+    # Book 6"). Regression test: citing Book 6 that way must not also tag
+    # this Book 1 - no SpoilH here, so a false positive would leak straight
+    # through as the final tier.
+    cs = by_title["Citation Subtitle"]
+    check("Citation Subtitle tier", cs["spoilerTier"], 6)
+    check("Citation Subtitle signal", cs["tierSignal"], "citation")
+
+    # Same collision, but via a fan-art filename inside a <gallery> block
+    # rather than a citation footnote.
+    gf = by_title["Gallery Filename"]
+    check("Gallery Filename tier", gf["spoilerTier"], 6)
+
+    # ==Description== is wiki-authored lore prose, separate from the
+    # ==AI Description== blockquote already captured in "body" - must not
+    # be confused with it, and must stop at the next heading (not leak
+    # into ==Trivia==). The lead paragraph (before any heading) must also
+    # be folded in, since that's what a Fandom link preview actually shows.
+    wl = by_title["Wiki Lore"]
+    if not wl["description"] or "third person" not in wl["description"]:
+        fails.append(f"Wiki Lore description missing the ==Description== section: {wl['description']!r}")
+    if not wl["description"] or "lead paragraph" not in wl["description"]:
+        fails.append(f"Wiki Lore description missing the lead paragraph: {wl['description']!r}")
+    if wl["description"] and "nobody reads" in wl["description"]:
+        fails.append("Wiki Lore description: AI Description blockquote leaked in")
+    if wl["description"] and "must not leak" in wl["description"]:
+        fails.append("Wiki Lore description: Trivia section leaked in")
+
+    # No ==Description== heading on this fixture, but there is a lead
+    # paragraph before the blockquote - it must be captured without
+    # duplicating the blockquote text that's already the body.
+    if not ym["description"] or "awarded when a crawler kills an infant" not in ym["description"]:
+        fails.append(f"You Monster description: lead paragraph missing: {ym['description']!r}")
+    if ym["description"] and "New achievement!" in ym["description"]:
+        fails.append("You Monster description: blockquote body duplicated into description")
+
+    # A {{Quote|text|[[Character]]}} epigraph with no <blockquote> anywhere
+    # must NOT be mistaken for the entity's own AI-voice body (a real bug
+    # found on Pazuzu/Changeling/Gods/Mantis's live pages) - fall through to
+    # the lead paragraph instead, and don't duplicate it into "description"
+    # since it's already the body.
+    eq = by_title["Epigraph Quote"]
+    check("Epigraph Quote body source", eq["bodySource"], "lead")
+    if "seen things you people" in eq["body"]:
+        fails.append("Epigraph Quote body: character-attributed quote leaked in as AI voice")
+    if "must not be mistaken" not in eq["body"]:
+        fails.append(f"Epigraph Quote body: lead paragraph fallback missing: {eq['body']!r}")
+    check("Epigraph Quote description", eq["description"], None)
+
+    # A quote template explicitly attributed to the System AI is still real
+    # body text - the skip above must not swallow this case - and since the
+    # body came from the template (not the lead paragraph itself), the lead
+    # paragraph belongs in "description".
+    sq = by_title["SystemAI Quote"]
+    check("SystemAI Quote body source", sq["bodySource"], "template")
+    if "quote template path" not in sq["body"]:
+        fails.append(f"SystemAI Quote body: System AI quote template not extracted: {sq['body']!r}")
+    if not sq["description"] or "confirm a System AI attributed" not in sq["description"]:
+        fails.append(f"SystemAI Quote description: lead paragraph missing: {sq['description']!r}")
+
+    check("stats total", stats["total"], 15)
+
+    gods, god_stats = bd.build_kind("gods", config, verbose=False, image_urls={})
+    god = {e["title"]: e for e in gods}
+    # The category's overview page isn't a god.
+    check("gods titles", sorted(god), ["Dodola", "Khepri"])
+    check("Dodola body", god["Dodola"]["body"], "Dodola is a god normally sponsored by Huanxin Jinx.")
+    check("Dodola tier", god["Dodola"]["spoilerTier"], 6)
+    check("Khepri body source", god["Khepri"]["bodySource"], "blockquote")
+    if not god["Khepri"]["body"].startswith("God of Rebirth and the Sunrise. Khepri! Level 250."):
+        fails.append(f"Khepri body: System AI text missing: {god['Khepri']['body'][:80]!r}")
+    if any(e["kind"] != "gods" for e in gods):
+        fails.append("gods entries mislabeled")
+
+    # extract_primary_image() edge cases, tested directly since build_kind()
+    # only wires an "image" onto an entry when fetch_images.py's URL cache
+    # (network-fetched, not available in this offline test) already has the
+    # filename - these exercise the filename/credit parsing on its own.
+
+    # Box closes same-line as |image1= (trailing "}}" on the filename).
+    img = bd.extract_primary_image(
+        "{{Achievement\n|title1= {{PAGENAME}}\n|image1=Shopping Cart.jpg}}\nbody text"
+    )
+    check("image same-line box close", img and img["file"], "Shopping Cart.jpg")
+
+    # Bare "File:" prefix with no [[ ]] wikilink brackets.
+    img = bd.extract_primary_image("{{Achievement\n|image1 = File:Cover.jpg\n}}\nbody")
+    check("image bare File: prefix", img and img["file"], "Cover.jpg")
+
+    # A full [[File:...|thumb|...]] wikilink written directly into the field.
+    img = bd.extract_primary_image(
+        "{{Achievement\n|image1=[[File:Hadji (1964).png|thumb|Hadji from Jonny Quest]]\n}}\nbody"
+    )
+    check("image wikilink-in-field", img and img["file"], "Hadji (1964).png")
+
+    # Blank infobox image field -> falls back to the first <gallery> entry,
+    # not the second field's value (same \s*-crosses-newlines risk as reward).
+    img = bd.extract_primary_image(
+        "{{Achievement\n|image1=\n|floor=[[First Floor]]\n}}\nbody\n"
+        "<gallery>\nFile:Real Art.jpg|Art by someone\n</gallery>"
+    )
+    check("image blank field falls to gallery", img and img["file"], "Real Art.jpg")
+    check("image gallery credit", img and img["credit"], "Art by someone")
+
+    # No image field and no gallery -> no fabricated image.
+    img = bd.extract_primary_image("{{Achievement\n|floor=[[First Floor]]\n}}\nno pictures here")
+    check("image absent stays absent", img, None)
 
     for e in entries:
         if not e["sourceUrl"].startswith("https://"):

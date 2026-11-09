@@ -18,9 +18,9 @@ without TLS, so offline mode works here too.
 
 ## Read this before you pick a host
 
-`entries.json` is mostly Matt Dinniman's prose (see `NOTICE.md`). Publishing it
-at a public URL is *publishing it* — the same thing that rules out the app
-stores. A GitHub Pages site is world-readable even when the repo is private.
+`entries.json` is mostly Matt Dinniman's prose. Publishing it at a public URL
+is *publishing it* — the same thing that rules out the app stores. A GitHub
+Pages site is world-readable even when the repo is private.
 
 So the hosting question isn't only "what's easiest", it's "who can reach it".
 

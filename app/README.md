@@ -8,7 +8,9 @@ Scaffold it when you start phase 3:
 
     cd app && flutter create --org nl.bar371 --platforms android,ios .
 
-Then structure per `PLAN.md` phase 3. Dependencies to add:
+The web app (`web/`) replaced this plan and is what's actually deployed - only
+come back to this if you specifically want native scheduled notifications,
+the one thing the PWA can't do. Dependencies to add:
 
     shared_preferences          settings + install seed
     flutter_local_notifications daily notification
